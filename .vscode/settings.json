@@ -1,0 +1,16 @@
+{
+    "verilog.linting.linter": "verilator",
+    "verilog.linting.verilator.arguments": "-sv --lint-only +define+VERILATOR_LINT --bbox-unsup -Wno-MULTITOP -Wno-ASSIGNDLY -Wno-PINCONNECTEMPTY",
+    "verilog.linting.verilator.runAtFileLocation": false,
+    "systemverilog.disableLinting": false,
+    "systemverilog.excludeIndexing": [
+        "openlane/**",
+        ".vscode/**",
+        ".git/**"
+    ],
+    "systemverilog.includeIndexing": [
+        "**/*.{sv,svh,v,vh}"
+    ],
+    "systemverilog.launchConfiguration": "verilator -sv --lint-only +define+VERILATOR_LINT -Irtl -Wno-MULTITOP -Wno-PINCONNECTEMPTY",
+    "python.pythonPath": "/usr/bin/python3"
+}

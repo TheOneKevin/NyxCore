@@ -1,0 +1,9 @@
+# build folders
+build/
+openlane/**/runs
+openlane/**/config_*.tcl
+openlane/**/base_config.tcl
+
+# .vscode non-configs
+.vscode/*.log
+.vscode/**/
