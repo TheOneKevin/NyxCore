@@ -23,3 +23,8 @@ sv2v: lint
 .PHONY: synth
 synth: sv2v
 	yosys -p "synth_ice40" build/top.v
+
+.PHONY: tb
+tb: sv2v
+	iverilog tb/$(TEST_NAME)/tb.v build/top.v -o build/$(TEST_NAME).tb.out
+	vvp build/$(TEST_NAME).tb.out

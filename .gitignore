@@ -7,3 +7,6 @@ openlane/**/base_config.tcl
 # .vscode non-configs
 .vscode/*.log
 .vscode/**/
+
+# testbench traces
+*.vcd
