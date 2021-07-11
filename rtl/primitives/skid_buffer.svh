@@ -1,0 +1,45 @@
+`ifndef SKID_BUFFER_SVH
+`define SKID_BUFFER_SVH
+
+`ifdef VERILATOR_LINT
+    `default_nettype none
+`endif
+
+module skid_buffer #(
+    parameter WIDTH = 32
+) (
+    input wire clk,
+    input wire reset,
+
+    input wire stall_i,
+
+    output wire rdy_o,
+    input wire val_i,
+    input wire[WIDTH-1:0] d_i,
+
+    input wire rdy_i,
+    output wire val_o,
+    output reg[WIDTH-1:0] d_o
+);
+    reg val_r;
+    assign rdy_o = (rdy_i | !val_o) & !stall_i;
+    assign val_o = val_r & !stall_i;
+
+    // Drives: d_o
+    always @(posedge clk)
+    if(reset) begin
+        d_o <= 0;
+    end else if(rdy_o) begin
+        d_o <= d_i;
+    end
+
+    // Drives: val_o
+    always @(posedge clk)
+    if(reset) begin
+        val_r <= 0;
+    end else if(rdy_o) begin
+        val_r <= val_i;
+    end
+endmodule
+
+`endif

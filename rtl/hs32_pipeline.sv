@@ -22,8 +22,7 @@ module hs32_pipeline (
     input wire ready_i,
     output wire[31:0] data_o
 );
-    wire[31:0] op;
-    reg banksel, ready_r, valid_r;
+    reg banksel;
     always_ff @(posedge clk) begin
         banksel <= banksel_i;
     end
@@ -55,7 +54,8 @@ module hs32_pipeline (
     // Pipeline stages and buffer
     //--========================================================================
 
-    // StageN combinational + latched paths
+    // StageN combinational (c) + latched (l) paths
+    wire[31:0] opl;
     hs32_s1pkt data1c, data1l;
     hs32_s2pkt data2c, data2l;
     hs32_s3pkt data3c;
@@ -69,7 +69,7 @@ module hs32_pipeline (
         .clk(clk), .reset(reset),
         .stall_i(stall1),
         .rdy_o(ready_o), .val_i(valid_i), .d_i(op_i),
-        .rdy_i(s1rdy), .val_o(s1vld), .d_o(op)
+        .rdy_i(s1rdy), .val_o(s1vld), .d_o(opl)
     );
     skid_buffer #(.WIDTH($bits(data1c))) skid1 (
         .clk(clk), .reset(reset),
@@ -93,7 +93,7 @@ module hs32_pipeline (
     // Combinational paths
     hs32_decode1 u1 (
         .rp_addr_o(reg_rp1_a), .rp_data_i(reg_rp1_d),
-        .data_i(op), .data_o(data1c),
+        .data_i(opl), .data_o(data1c),
 
         // Hazard detection
         .rd2_i(rd2), .stl2_i(s2vld),

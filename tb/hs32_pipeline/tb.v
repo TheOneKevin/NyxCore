@@ -34,10 +34,10 @@ module top();
         { 32'h3031_2000 }   // add r3, r1 + r2
     };*/
     wire[numinstrs*32-1:0] instr = {
-        { 32'h0020_0002 },  // mov r2, 2
         { 32'h0010_0001 },  // mov r1, 1
-        { 32'h3031_2000 },  // add r3, r1 + r2
-        { 32'h0040_0004 }   // mov r4, 4
+        { 32'h0020_0002 },  // mov r2, 2
+        { 32'h0040_0004 },  // mov r4, 4
+        { 32'h3031_2000 }   // add r3, r1 + r2
     };
 
     // Pipeline input signals

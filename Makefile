@@ -11,14 +11,16 @@ mount:
 		-e PDK_ROOT=$(PDK_ROOT)					\
 		-u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME)
 
+VERILATOR_NOWARN = -Wno-MULTITOP -Wno-DECLFILENAME -Wno-fatal
+
 .PHONY: lint
 lint:
-	verilator -sv -lint-only top.sv -Wall -Wno-MULTITOP -Wno-DECLFILENAME -Wno-fatal
+	verilator -sv -Irtl -lint-only top.sv -Wall $(VERILATOR_NOWARN)
 
 .PHONY: sv2v
 sv2v: lint
-	sv2v top.sv -w build/top.v
-	verilator -sv -lint-only build/top.v -Wno-MULTITOP -Wno-DECLFILENAME -Wno-UNOPTFLAT -Wno-fatal
+	sv2v top.sv -w build/top.v -Irtl
+	verilator -sv -lint-only build/top.v $(VERILATOR_NOWARN) -Wno-UNOPTFLAT
 
 .PHONY: synth
 synth: sv2v
