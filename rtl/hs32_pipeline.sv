@@ -22,9 +22,13 @@ module hs32_pipeline (
     input wire ready_i,
     output wire[31:0] data_o
 );
-    reg banksel;
+    reg banksel_r, valid_r, ready_r;
+    reg[31:0] op_r;
     always_ff @(posedge clk) begin
-        banksel <= banksel_i;
+        banksel_r <= banksel_i;
+        valid_r <= valid_i;
+        ready_r <= ready_i;
+        op_r <= op_i;
     end
 
     //--========================================================================
@@ -37,7 +41,7 @@ module hs32_pipeline (
     
     hs32_regfile2r1w regfile (
         .clk(clk), .reset(reset),
-        .banksel_i(banksel),
+        .banksel_i(banksel_r),
 
         // Write port 1
         .wp1_addr_i(reg_wp1_a), .wp1_data_i(reg_wp1_d),
@@ -68,7 +72,7 @@ module hs32_pipeline (
     skid_buffer #(.WIDTH($bits(op_i))) skid0 (
         .clk(clk), .reset(reset),
         .stall_i(stall1),
-        .rdy_o(ready_o), .val_i(valid_i), .d_i(op_i),
+        .rdy_o(ready_o), .val_i(valid_r), .d_i(op_r),
         .rdy_i(s1rdy), .val_o(s1vld), .d_o(opl)
     );
     skid_buffer #(.WIDTH($bits(data1c))) skid1 (
@@ -87,12 +91,15 @@ module hs32_pipeline (
         .clk(clk), .reset(reset),
         .stall_i(1'b0),
         .rdy_o(s3rdy), .val_i(s3vld), .d_i(data3c),
-        .rdy_i(ready_i), .val_o(valid_o), .d_o(data_o)
+        .rdy_i(ready_r), .val_o(valid_o), .d_o(data_o)
     );
 
     // Combinational paths
     hs32_decode1 u1 (
+        // Register read port 1
         .rp_addr_o(reg_rp1_a), .rp_data_i(reg_rp1_d),
+
+        // Pipeline data
         .data_i(opl), .data_o(data1c),
 
         // Hazard detection
@@ -101,19 +108,25 @@ module hs32_pipeline (
         .stall_o(stall1)
     );
     hs32_decode2 u2 (
+        // Register read port 2
         .rp_addr_o(reg_rp2_a), .rp_data_i(reg_rp2_d),
-        .data_i(data1l), .data_o(data2c),
+
+        // Pipeline data
+        .data_i(data1l), .data_o(data2c), .fwd_i(data_o),
 
         // Hazard detection
         .rd2_o(rd2), .rd3_i(rd3), .stl3_i(s3vld),
         .stall_o(stall2)
     );
     hs32_execute u3 (
+        // Register write port 1
         .clk(clk), .reset(reset),
         .valid_i(s3vld),
         .wp_addr_o(reg_wp1_a), .wp_data_o(reg_wp1_d),
         .wp_we1_o(reg_wp1_we1), .wp_we2_o(reg_wp1_we2),
-        .data_i(data2l), .data_o(data3c),
+
+        // Pipeline data
+        .data_i(data2l), .data_o(data3c), .fwd_i(data_o),
         
         // Hazard detection
         .rd3_o(rd3)

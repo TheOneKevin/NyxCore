@@ -38,8 +38,8 @@ module hs32_decode1 (
     assign data_o.opc   = { op.opcode[5], op.opcode[3:0] };
 
     // Calculate data stall signals
-    assign stall_o      = ((op.enc.r.rn == rd2_i && stl2_i) ||
-                           (op.enc.r.rn == rd3_i && stl3_i)) && op_renc;
+    assign data_o.fwd   = op.enc.r.rn == rd3_i && stl3_i && op_renc;
+    assign stall_o      = op.enc.r.rn == rd2_i && stl2_i && op_renc;
 
     // Valid opcode map
     logic ud;
