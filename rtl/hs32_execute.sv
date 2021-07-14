@@ -43,5 +43,4 @@ module hs32_execute (
         .ctl_i(data_i.ctl),
         .flags_o(), .out(wp_data_o)
     );
-    
 endmodule

@@ -1,19 +1,19 @@
 [*]
 [*] GTKWave Analyzer v3.3.86 (w)1999-2017 BSI
-[*] Fri Jul  9 22:02:44 2021
+[*] Tue Jul 13 20:38:44 2021
 [*]
-[dumpfile] "/data/mpw-two/dump.vcd"
-[dumpfile_mtime] "Fri Jul  9 22:01:04 2021"
-[dumpfile_size] 49128
-[savefile] "/data/mpw-two/tb/hs32_pipeline/tb.gtkw"
+[dumpfile] "/data/mpw-two/build/dump.fst"
+[dumpfile_mtime] "Tue Jul 13 20:32:23 2021"
+[dumpfile_size] 4395
+[savefile] "/data/mpw-two/dv/tb/pipeline/tb.gtkw"
 [timestart] 0
-[size] 1380 774
+[size] 1124 630
 [pos] -1 -1
-*-5.928452 230 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-5.928452 4 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
 [treeopen] top.uut.
 [sst_width] 228
-[signals_width] 282
+[signals_width] 274
 [sst_expanded] 1
 [sst_vpaned_height] 214
 @28
@@ -32,7 +32,7 @@ top.uut.s3rdy
 top.uut.s3vld
 @200
 -
-@29
+@28
 top.uut.stall1
 top.uut.stall2
 @200
@@ -41,9 +41,9 @@ top.uut.stall2
 top.uut.reg_wp1_we1
 @22
 top.uut.op_i[31:0]
-top.uut.op[31:0]
-top.uut.data1c[57:0]
-top.uut.data2c[75:0]
+top.uut.data1c[58:0]
+top.uut.data2c[76:0]
+@23
 top.uut.data3c[31:0]
 [pattern_trace] 1
 [pattern_trace] 0

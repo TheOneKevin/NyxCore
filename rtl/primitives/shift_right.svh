@@ -3,6 +3,7 @@
 
 `ifdef VERILATOR_LINT
     `default_nettype none
+    `include "mux2to1.svh"
 `endif
 
 // Performs out = a << b with c as sign extension (0 or 1 extend)

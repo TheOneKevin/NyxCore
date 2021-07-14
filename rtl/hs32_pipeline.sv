@@ -22,15 +22,6 @@ module hs32_pipeline (
     input wire ready_i,
     output wire[31:0] data_o
 );
-    reg banksel_r, valid_r, ready_r;
-    reg[31:0] op_r;
-    always_ff @(posedge clk) begin
-        banksel_r <= banksel_i;
-        valid_r <= valid_i;
-        ready_r <= ready_i;
-        op_r <= op_i;
-    end
-
     //--========================================================================
     // Register file
     //--========================================================================
@@ -41,7 +32,7 @@ module hs32_pipeline (
     
     hs32_regfile2r1w regfile (
         .clk(clk), .reset(reset),
-        .banksel_i(banksel_r),
+        .banksel_i(banksel_i),
 
         // Write port 1
         .wp1_addr_i(reg_wp1_a), .wp1_data_i(reg_wp1_d),
@@ -72,7 +63,7 @@ module hs32_pipeline (
     skid_buffer #(.WIDTH($bits(op_i))) skid0 (
         .clk(clk), .reset(reset),
         .stall_i(stall1),
-        .rdy_o(ready_o), .val_i(valid_r), .d_i(op_r),
+        .rdy_o(ready_o), .val_i(valid_i), .d_i(op_i),
         .rdy_i(s1rdy), .val_o(s1vld), .d_o(opl)
     );
     skid_buffer #(.WIDTH($bits(data1c))) skid1 (
@@ -91,7 +82,7 @@ module hs32_pipeline (
         .clk(clk), .reset(reset),
         .stall_i(1'b0),
         .rdy_o(s3rdy), .val_i(s3vld), .d_i(data3c),
-        .rdy_i(ready_r), .val_o(valid_o), .d_o(data_o)
+        .rdy_i(ready_i), .val_o(valid_o), .d_o(data_o)
     );
 
     // Combinational paths
