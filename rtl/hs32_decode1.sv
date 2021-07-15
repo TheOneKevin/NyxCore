@@ -20,7 +20,8 @@ module hs32_decode1 (
     input   wire        stl3_i,
     output  wire        stall_o
 );
-    hs32_instr op       = data_i;
+    hs32_instr op;
+    assign op           = data_i;
     wire op_renc        = op.opcode[4];
     wire op_ror         = &op.enc.r.dir[1:0];
     wire[31:0] imm      = sext32(op.enc.i);

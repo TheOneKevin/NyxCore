@@ -66,9 +66,9 @@ module hs32_decode2 (
 
     // Arithmetic/right shift hybrid
     shift_right #(.WIDTH(32), .DEPTH(5)) u0 (
-        .a(data_i.d2),
+        .a(d2),
         .b(data_i.shr),
-        .c(data_i.sext & data_i.d2[31]),
+        .c(data_i.sext & d2[31]),
         .out(shr_out)
     );
 endmodule
