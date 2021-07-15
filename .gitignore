@@ -10,3 +10,14 @@ openlane/**/base_config.tcl
 
 # testbench traces
 *.vcd
+
+# python/cocotb
+*/coco/**/__pycache__/
+*/coco/**/*.pyc
+*/coco/**/sim_build/
+*/coco/**/*.dat
+*/coco/**/*.fst
+*/coco/**/*.xml
+
+# coverage
+*.info
