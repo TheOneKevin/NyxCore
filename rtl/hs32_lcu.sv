@@ -11,7 +11,7 @@ module lcu (P, G, CI, CO);
     output wire [WIDTH-1:0] CO;
 
     integer i, j;
-    logic [WIDTH-1:0] p, g;
+    reg [WIDTH-1:0] p, g;
 
     always @(*) begin
         p = P;

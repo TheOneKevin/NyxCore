@@ -29,7 +29,7 @@ module hs32_execute (
     assign wp_we2_o     = data_i.we2 & valid_i;
 
     // Forwarded data
-    logic[31:0] d1      = data_i.fwd ? fwd_i.res : data_i.d1;
+    wire[31:0] d1       = data_i.fwd ? fwd_i.res : data_i.d1;
 
     // Calculate data packet
     assign data_o.res   = wp_data_o;

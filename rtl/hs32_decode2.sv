@@ -24,14 +24,14 @@ module hs32_decode2 (
     wire[31:0] shr_out;
     assign rp_addr_o = data_i.rm;
 
-    logic op_isalu = data_i[4];
-    logic op_issub = op_isalu & ~data_i.opc[2] & data_i.opc[1];
-    logic op_iscen = op_isalu & ~data_i.opc[2] & data_i.opc[0];
-    logic op_isbic = op_isalu & data_i.opc[2:0] == 3'b101;
-    logic op_ismov = data_i.opc[4:2] == 3'b000;
+    wire op_isalu = data_i[4];
+    wire op_issub = op_isalu & ~data_i.opc[2] & data_i.opc[1];
+    wire op_iscen = op_isalu & ~data_i.opc[2] & data_i.opc[0];
+    wire op_isbic = op_isalu & data_i.opc[2:0] == 3'b101;
+    wire op_ismov = data_i.opc[4:2] == 3'b000;
 
     // Forwarded data
-    logic[31:0] d2 = data_i.fwd ? fwd_i.res : data_i.d2;
+    wire[31:0] d2 = data_i.fwd ? fwd_i.res : data_i.d2;
 
     // Calculate data packet
     assign data_o.d1        = rp_data_i & bext32(~op_ismov);
@@ -49,7 +49,7 @@ module hs32_decode2 (
 
     // Compute ALU controls
     hs32_aluctl ctl;
-    logic[1:0] opr;
+    reg[1:0] opr;
     wire[2:0] opc = data_i.opc[2:0];
     assign ctl.neg          = op_isbic | op_issub;
     assign ctl.sub          = op_issub;
