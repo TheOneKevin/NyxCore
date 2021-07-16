@@ -43,7 +43,7 @@ module hs32_decode1 (
     assign stall_o      = op.enc.r.rn == rd2_i && stl2_i && op_renc;
 
     // Valid opcode map
-    logic ud;
+    reg ud;
     always_comb casez(op.opcode)
         6'b0?_10??,
         6'b00_000?,
