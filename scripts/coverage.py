@@ -1,4 +1,5 @@
 import os
+import sys
 import importlib.util
 from os import path, system
 
@@ -31,7 +32,9 @@ for d in os.scandir(cocoRoot):
     coveragedat = path.join(tbroot, 'coverage.dat')
     system('rm -f %s/*.dat'%(tbroot))
     for x in tests:
-        system('make -C %s COCOTB_REDUCED_LOG_FMT=1 COCOTB_LOG_LEVEL=ERROR TESTCASE=%s'%(tbroot,x))
+        if system('make -C %s COCOTB_REDUCED_LOG_FMT=1 COCOTB_LOG_LEVEL=ERROR TESTCASE=%s'%(tbroot,x)) != 0:
+            print("Test failed. Unable to generate coverage, exiting.")
+            sys.exit(1)
         system('verilator_coverage -write merged.dat merged.dat %s'%(coveragedat))
     # Clean up
     system('rm -f %s/*.dat'%(tbroot))

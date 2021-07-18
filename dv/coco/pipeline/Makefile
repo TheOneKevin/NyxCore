@@ -14,7 +14,7 @@ VERILOG_SOURCES += $(PWD)/../../../top.sv
 TOPLEVEL = hs32_pipeline
 
 # MODULE is the basename of the Python test file
-MODULE = tb
+MODULE = tc
 
 # Include cocotb's make rules to take care of the simulator setup
 include $(shell cocotb-config --makefiles)/Makefile.sim
