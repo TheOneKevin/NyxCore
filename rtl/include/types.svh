@@ -3,10 +3,10 @@
 
 typedef struct packed {
     logic[3:0] rn;
+    logic[2:0] func;
     logic[4:0] sh;
     logic[1:0] dir;
     logic[1:0] bank;
-    logic[2:0] reserved;
 } hs32_enc_r;
 
 typedef struct packed {
@@ -38,7 +38,8 @@ typedef struct packed {
     logic maskl;        // Mask left shift when 0
     logic maskr;        // Mask right shift when 0
     logic[4:0] opc;     // Opcode without MSB
-    logic fwd;
+    logic fwd;          // Forward
+    logic xud;          // Exception #UD
 } hs32_s1pkt;
 
 typedef struct packed {
@@ -48,11 +49,14 @@ typedef struct packed {
     logic we1;          // Write enable
     logic we2;          //
     logic[3:0] rd;      // rd address (passthrough)
-    logic fwd;
+    logic fwd;          // Forward
+    logic store;        // Store rd (read rd)
+    logic xud;          // Exception #UD
 } hs32_s2pkt;
 
 typedef struct packed {
-    logic[31:0] res;    // Result for pipeline forwarding
+    logic[31:0] std;    // Store data
+    logic[31:0] res;    // LSU address/ALU result for forwarding
 } hs32_s3pkt;
 
 `endif // TYPES_SVH

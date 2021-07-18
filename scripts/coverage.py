@@ -15,14 +15,16 @@ system('rm -f merged.dat')
 system('touch merged.dat')
 
 # Get all tests in cocoRoot
+sys.path.append(cocoRoot)
 for d in os.scandir(cocoRoot):
-    if not path.isdir(d):
+    if not path.isdir(d) or d.name == '__pycache__':
         continue
     print('Found test: %s'%(d))
+    sys.path.append(path.join(cocoRoot, d.name))
     # Import test module
     tbroot = path.join(cocoRoot, d)
-    tbpath = path.join(tbroot, 'tb.py')
-    tbspec = importlib.util.spec_from_file_location('tb', tbpath)
+    tbpath = path.join(tbroot, 'tc.py')
+    tbspec = importlib.util.spec_from_file_location('tc', tbpath)
     tb = importlib.util.module_from_spec(tbspec)
     tbspec.loader.exec_module(tb)
     tests = [x for x in dir(tb) if 'cocotb.decorators.test' in str(type(getattr(tb,x)))]

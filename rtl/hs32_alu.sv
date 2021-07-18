@@ -7,6 +7,7 @@
 module hs32_alu (
     input wire clk,
     input wire reset,
+    input wire valid_i,
 
     // Input data port
     input wire [31:0] a_i,
@@ -42,7 +43,7 @@ module hs32_alu (
 
     // Compute output
     assign out = r;
-    logic[1:0] opr = ctl_i.opr;
+    wire[1:0] opr = ctl_i.opr;
     always_comb case(opr)
         2'b00: begin
             { co, r } = sum;
@@ -65,7 +66,7 @@ module hs32_alu (
     always_ff @(posedge clk)
     if(reset) begin
         flags_o <= 0;
-    end else if(ctl_i.fwe) begin
+    end else if(ctl_i.fwe && valid_i) begin
         flags_o <= { r[31], ~(|r), co, (~co) & r[31] };
     end
 endmodule

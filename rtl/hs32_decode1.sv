@@ -31,11 +31,11 @@ module hs32_decode1 (
     assign data_o.rd    = op.rd;
     assign data_o.rm    = op.rm;
     assign data_o.d2    = op_renc ? rp_data_i : imm;
-    assign data_o.shl   = op.enc.r.sh;
-    assign data_o.shr   = op_ror ? ~op.enc.r.sh[4:0] + 1 : op.enc.r.sh[4:0];
+    assign data_o.shl   = op_renc ? op.enc.r.sh : 0;
+    assign data_o.shr   = op_renc ? op_ror ? ~op.enc.r.sh[4:0] + 1 : op.enc.r.sh[4:0] : 0;
     assign data_o.sext  = op.enc.r.dir == 2'b10;
-    assign data_o.maskl = ~op_ror;
-    assign data_o.maskr = |op.enc.r.dir[1:0];
+    assign data_o.maskl = op_renc ? ~op_ror : 1'b1;
+    assign data_o.maskr = op_renc ? |op.enc.r.dir[1:0] : 1'b0;
     assign data_o.opc   = { op.opcode[5], op.opcode[3:0] };
 
     // Calculate data stall signals
@@ -44,6 +44,7 @@ module hs32_decode1 (
 
     // Valid opcode map
     reg ud;
+    assign data_o.xud   = ud;
     always_comb casez(op.opcode)
         6'b0?_10??,
         6'b00_000?,

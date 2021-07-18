@@ -4,7 +4,7 @@
     `include "hs32_decode1.sv"
     `include "hs32_decode2.sv"
     `include "hs32_execute.sv"
-    `include "hs32_regfile2r1w.sv"
+    `include "hs32_regfile4r1w.sv"
 `endif
 
 module hs32_pipeline (
@@ -26,23 +26,32 @@ module hs32_pipeline (
     // Register file
     //--========================================================================
 
-    wire[3:0] reg_wp1_a, reg_rp1_a, reg_rp2_a;
-    wire[31:0] reg_wp1_d, reg_rp1_d, reg_rp2_d;
+    wire[3:0] reg_wp1_a, reg_rp1_a, reg_rp2_a, reg_rp3_a;
+    wire[31:0] reg_wp1_d, reg_rp1_d, reg_rp2_d, reg_rp3_d;
     wire reg_wp1_we1, reg_wp1_we2;
     
-    hs32_regfile2r1w regfile (
+    hs32_regfile4r1w #(
+        .RESET(1), .DUPLICATE_FILE(0)
+    ) regfile (
         .clk(clk), .reset(reset),
         .banksel_i(banksel_i),
 
         // Write port 1
         .wp1_addr_i(reg_wp1_a), .wp1_data_i(reg_wp1_d),
-        .wp1_we1_i(reg_wp1_we1), .wp1_we2_i(reg_wp1_we2),      
+        .wp1_we1_i(reg_wp1_we1), .wp1_we2_i(reg_wp1_we2),
+        .wp1_wel_i(1'b1),
         
         // Read port 1
         .rp1_addr_i(reg_rp1_a), .rp1_data_o(reg_rp1_d),
         
         // Read port 2
-        .rp2_addr_i(reg_rp2_a), .rp2_data_o(reg_rp2_d)
+        .rp2_addr_i(reg_rp2_a), .rp2_data_o(reg_rp2_d),
+
+        // Read port 3
+        .rp3_addr_i(reg_rp3_a), .rp3_data_o(reg_rp3_d),
+
+        // Read port 4
+        .rp4_addr_i(4'b0), .rp4_data_o()
     );
 
     //--========================================================================
@@ -78,10 +87,10 @@ module hs32_pipeline (
         .rdy_o(s2rdy), .val_i(s2vld), .d_i(data2c),
         .rdy_i(s3rdy), .val_o(s3vld), .d_o(data2l)
     );
-    skid_buffer #(.WIDTH($bits(data3c))) skid3 (
+    skid_buffer #(.WIDTH($bits(data3c.res))) skid3 (
         .clk(clk), .reset(reset),
         .stall_i(1'b0),
-        .rdy_o(s3rdy), .val_i(s3vld), .d_i(data3c),
+        .rdy_o(s3rdy), .val_i(s3vld), .d_i(data3c.res),
         .rdy_i(ready_i), .val_o(valid_o), .d_o(data_o)
     );
 
@@ -110,16 +119,25 @@ module hs32_pipeline (
         .stall_o(stall2)
     );
     hs32_execute u3 (
+        .clk(clk), .reset(reset), .valid_i(s3vld),
+
+        // Register read port 3
+        .rp_addr_o(reg_rp3_a), .rp_data_i(reg_rp3_d),
+
         // Register write port 1
-        .clk(clk), .reset(reset),
-        .valid_i(s3vld),
         .wp_addr_o(reg_wp1_a), .wp_data_o(reg_wp1_d),
         .wp_we1_o(reg_wp1_we1), .wp_we2_o(reg_wp1_we2),
 
         // Pipeline data
         .data_i(data2l), .data_o(data3c), .fwd_i(data_o),
-        
+
         // Hazard detection
         .rd3_o(rd3)
     );
+
+    //--========================================================================
+    // Load store unit
+    //--========================================================================
+    
+
 endmodule
