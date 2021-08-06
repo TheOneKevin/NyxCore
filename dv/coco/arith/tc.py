@@ -36,8 +36,8 @@ async def test3(dut):
         0x3533_2000,    # bic r3, r3, r2
         0x2622_0012,    #  or r2, r2, 0x12
         0x3622_3078,    #  or r2, r2, r3 srx 7
-        0x2722_FFFF,    #  xor r2, r2, -1
-        0x3722_2000,    #  xor r2, r2, r2
+        0x2722_FFFF,    # xor r2, r2, -1
+        0x3722_2000,    # xor r2, r2, r2
     ],{'onregwrite':[
         (1, 0xFFFFFFFF),
         (2, 0x7FFF), (2, 0x7F00),

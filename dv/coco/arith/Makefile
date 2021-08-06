@@ -8,7 +8,11 @@ EXTRA_ARGS += -Wno-fatal -I$(PWD)/../../../ -I$(PWD)/../../../rtl/
 
 # Use VHDL_SOURCES for VHDL files
 TOPLEVEL_LANG = verilog
+ifeq ($(SV),1)
 VERILOG_SOURCES += $(PWD)/../../../top.sv
+else
+VERILOG_SOURCES += $(PWD)/../../../build/top.v
+endif
 
 # TOPLEVEL is the name of the toplevel module in your Verilog or VHDL file
 TOPLEVEL = hs32_pipeline

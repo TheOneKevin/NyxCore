@@ -21,3 +21,7 @@ openlane/**/base_config.tcl
 
 # coverage
 *.info
+
+# others
+.venv/
+docs/_build/

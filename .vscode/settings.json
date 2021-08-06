@@ -1,7 +1,9 @@
 {
-    "verilog.linting.linter": "verilator",
+    // mshr-h.veriloghdl
     "verilog.linting.verilator.arguments": "-sv --lint-only +define+VERILATOR_LINT --bbox-unsup lint/waiver.vlt",
     "verilog.linting.verilator.runAtFileLocation": false,
+
+    // imctradingbv.svlangserver
     "systemverilog.disableLinting": false,
     "systemverilog.excludeIndexing": [
         "openlane/**",
@@ -12,8 +14,25 @@
         "**/*.{sv,svh,v,vh}"
     ],
     "systemverilog.launchConfiguration": "verilator -sv --lint-only +define+VERILATOR_LINT -Irtl lint/waiver.vlt",
+
+    // vscode configs
     "python.pythonPath": "/usr/bin/python3",
     "python.analysis.extraPaths": [
         "./dv/coco"
-    ]
+    ],
+    "search.useGlobalIgnoreFiles": true,
+    "files.watcherExclude": {
+        "**/.venv/**": true,
+        "**/runs/**": true,
+        "**/_build/**": true,
+        "**/build/**": true
+    },
+
+    // lextudio.restructuredtext
+    "restructuredtext.sphinxBuildPath": "env/bin/sphinx-build",
+    "restructuredtext.confPath": "${workspaceFolder}/docs",
+    "restructuredtext.languageServer.disabled": true,
+    "restructuredtext.preview.docutil.disabled": true,
+    "restructuredtext.linter.disabled": true,
+    "restructuredtext.preview.sphinx.disabled": true
 }

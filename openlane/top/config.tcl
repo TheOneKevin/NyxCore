@@ -1,6 +1,7 @@
 set script_dir [file dirname [file normalize [info script]]]
 
 set ::env(DESIGN_NAME) hs32_pipeline
+set ::env(STD_CELL_LIBRARY) sky130_fd_sc_hd
 
 set ::env(VERILOG_FILES) "$script_dir/../../build/top.v"
 

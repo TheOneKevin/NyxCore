@@ -26,5 +26,8 @@ synth: sv2v
 
 .PHONY: tb
 tb: sv2v
-	iverilog -g2012 -Wno-anachronisms -P top.TEST_ID=$(TEST_ID) dv/tb/$(TEST_NAME)/tb.sv build/top.v -o build/$(TEST_NAME).tb.out
+	iverilog -g2012 -Wno-anachronisms -P top.TEST_ID=$(TEST_ID) \
+		rtl/include/types.svh 									\
+		dv/tb/$(TEST_NAME)/tb.sv 								\
+		build/top.v -o build/$(TEST_NAME).tb.out
 	cd build && vvp $(TEST_NAME).tb.out -fst-speed
