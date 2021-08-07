@@ -14,18 +14,19 @@ module hs32_decode1 (
     output  hs32_s1pkt  data_o,
 
     // Pipeline controls
-    input   wire[3:0]   rd2_i,
-    input   wire        stl2_i,
-    input   wire[3:0]   rd3_i,
-    input   wire        stl3_i,
+    input   hs32_stall  s2_i,
+    input   hs32_stall  s3_i,
+    input   hs32_stall  l1_i,
+    input   hs32_stall  l2_i,
     output  wire        stall_o
 );
     hs32_instr op;
     assign op           = data_i;
+    wire[4:0] opc       = { op.opcode[5], op.opcode[3:0] };
+    assign rp_addr_o    = op.enc.r.rn;
+    wire[31:0] imm      = sext32(op.enc.i);
     wire op_renc        = op.opcode[4];
     wire op_ror         = &op.enc.r.dir[1:0];
-    wire[31:0] imm      = sext32(op.enc.i);
-    assign rp_addr_o    = op.enc.r.rn;
 
     // Calculate data packet
     assign data_o.rd    = op.rd;
@@ -36,11 +37,14 @@ module hs32_decode1 (
     assign data_o.sext  = op.enc.r.dir == 2'b10;
     assign data_o.maskl = op_renc ? ~op_ror : 1'b1;
     assign data_o.maskr = op_renc ? |op.enc.r.dir[1:0] : 1'b0;
-    assign data_o.opc   = { op.opcode[5], op.opcode[3:0] };
+    assign data_o.opc   = opc;
 
     // Calculate data stall signals
-    assign data_o.fwd   = op.enc.r.rn == rd3_i && stl3_i && op_renc;
-    assign stall_o      = op.enc.r.rn == rd2_i && stl2_i && op_renc;
+    assign data_o.fwd   = op.enc.r.rn == s3_i.rd && s3_i.vld && op_renc && !s3_i.lsu;
+    assign stall_o      = op.enc.r.rn == s2_i.rd && s2_i.vld && op_renc ||
+                          op.enc.r.rn == s3_i.rd && s3_i.vld && op_renc && s3_i.lsu ||
+                          op.enc.r.rn == l1_i.rd && l1_i.vld && op_renc ||
+                          op.enc.r.rn == l2_i.rd && l2_i.vld && op_renc;
 
     // Valid opcode map
     reg ud;

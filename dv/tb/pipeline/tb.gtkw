@@ -1,21 +1,21 @@
 [*]
 [*] GTKWave Analyzer v3.3.86 (w)1999-2017 BSI
-[*] Tue Jul 13 20:38:44 2021
+[*] Sat Aug  7 01:44:40 2021
 [*]
 [dumpfile] "/data/mpw-two/build/dump.fst"
-[dumpfile_mtime] "Tue Jul 13 20:32:23 2021"
-[dumpfile_size] 4395
+[dumpfile_mtime] "Sat Aug  7 01:27:09 2021"
+[dumpfile_size] 5086
 [savefile] "/data/mpw-two/dv/tb/pipeline/tb.gtkw"
-[timestart] 0
-[size] 1124 630
+[timestart] 3
+[size] 1212 744
 [pos] -1 -1
-*-5.928452 4 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-5.928452 120 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
 [treeopen] top.uut.
 [sst_width] 228
 [signals_width] 274
 [sst_expanded] 1
-[sst_vpaned_height] 214
+[sst_vpaned_height] 267
 @28
 top.uut.clk
 top.uut.reset
@@ -32,8 +32,9 @@ top.uut.s3rdy
 top.uut.s3vld
 @200
 -
-@28
+@29
 top.uut.stall1
+@28
 top.uut.stall2
 @200
 -
@@ -41,9 +42,29 @@ top.uut.stall2
 top.uut.reg_wp1_we1
 @22
 top.uut.op_i[31:0]
-top.uut.data1c[58:0]
-top.uut.data2c[76:0]
-@23
-top.uut.data3c[31:0]
+top.uut.u2.fwd_i[31:0]
+@200
+-
+@28
+top.uut.HRESP_i
+top.uut.HREADY_i
+@22
+top.uut.HRDATA_i[31:0]
+@200
+-
+@22
+top.uut.HADDR_o[31:0]
+@28
+top.uut.HBURST_o[2:0]
+top.uut.HMASTLOCK_o
+@22
+top.uut.HPROT_o[3:0]
+@28
+top.uut.HSIZE_o[2:0]
+top.uut.HTRANS_o[1:0]
+@22
+top.uut.HWDATA_o[31:0]
+@28
+top.uut.HWRITE_o
 [pattern_trace] 1
 [pattern_trace] 0

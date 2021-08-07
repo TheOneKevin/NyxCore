@@ -1,6 +1,15 @@
 `ifndef VERILATOR_LINT
 
-`define check(x) assert(x) else begin $error("%c[1;31mAssertation failed in %m %c[0m", 27, 27); $finish_and_return(1); end
+function void check(input x, string y = "");
+    assert(x) else begin
+        if(y.len() == 0) begin
+            $error("%c[1;31mAssertation failed in %m %c[0m", 27, 27);
+        end else begin
+            $error("%c[1;31mAssertation failed in %m: %s %c[0m", 27, y, 27);
+        end
+        $finish_and_return(1);
+    end
+endfunction
 
 // Clock logic
 reg clk = 1, reset = 0;

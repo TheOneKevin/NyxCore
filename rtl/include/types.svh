@@ -52,11 +52,22 @@ typedef struct packed {
     logic fwd;          // Forward
     logic store;        // Store rd (read rd)
     logic xud;          // Exception #UD
+    logic isldr;
+    logic isstr;
 } hs32_s2pkt;
 
 typedef struct packed {
+    logic[3:0]  rd;     // rd address (passthrough)
     logic[31:0] std;    // Store data
     logic[31:0] res;    // LSU address/ALU result for forwarding
+    logic       memwe;
+    logic       regwe;
 } hs32_s3pkt;
+
+typedef struct packed {
+    logic[3:0] rd;
+    logic vld;
+    logic lsu;
+} hs32_stall;
 
 `endif // TYPES_SVH

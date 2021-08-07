@@ -1,0 +1,45 @@
+[*]
+[*] GTKWave Analyzer v3.3.86 (w)1999-2017 BSI
+[*] Mon Aug  2 16:56:33 2021
+[*]
+[dumpfile] "/data/mpw-two/build/dump.fst"
+[dumpfile_mtime] "Mon Aug  2 16:56:16 2021"
+[dumpfile_size] 1345
+[savefile] "/data/mpw-two/dv/tb/lsu/tb.gtkw"
+[timestart] 0
+[size] 1212 744
+[pos] -1 -1
+*-4.935158 60 30 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] top.
+[sst_width] 213
+[signals_width] 225
+[sst_expanded] 1
+[sst_vpaned_height] 202
+@28
+top.uut.clk
+top.uut.resetn
+@200
+-
+@29
+top.uut.HTRANS_o[1:0]
+@22
+top.uut.HADDR_o[31:0]
+top.uut.HRDATA_i[31:0]
+@28
+top.uut.HWRITE_o
+@22
+top.uut.HWDATA_o[31:0]
+@28
+top.uut.HREADY_i
+@200
+-
+@28
+top.uut.HBURST_o[2:0]
+top.uut.HMASTLOCK_o
+@22
+top.uut.HPROT_o[3:0]
+@28
+top.uut.HRESP_i
+top.uut.HSIZE_o[2:0]
+[pattern_trace] 1
+[pattern_trace] 0

@@ -1,11 +1,13 @@
 `ifdef VERILATOR_LINT
     `default_nettype none
-    `include "hs32_primitives.sv"
     `include "include/utils.svh"
     `include "include/types.svh"
+    `include "primitives/shift_right.svh"
 `endif
 
 module hs32_decode2 (
+    input   wire        valid_i,
+
     // Regfile read port
     output  wire[3:0]   rp_addr_o,
     input   wire[31:0]  rp_data_i,
@@ -16,9 +18,10 @@ module hs32_decode2 (
     input   wire[31:0]  fwd_i,
 
     // Pipeline controls
-    output  wire[3:0]   rd2_o,
-    input   wire[3:0]   rd3_i,
-    input   wire        stl3_i,
+    output  hs32_stall  s2_o,
+    input   hs32_stall  s3_i,
+    input   hs32_stall  l1_i,
+    input   hs32_stall  l2_i,
     output  wire        stall_o
 );
     wire[31:0] shr_out;
@@ -31,12 +34,12 @@ module hs32_decode2 (
     wire op_isbic = op_isalu & data_i.opc[2:0] == 3'b101;
     wire op_ismov = data_i.opc[4:2] == 3'b000;
     wire op_isldr = data_i.opc == 5'b01000;
-    wire op_isstr = data_i.opc == 5'b01000;
+    wire op_isstr = data_i.opc == 5'b01001;
     wire op_islsu = op_isldr || op_isstr;
 
     // Forwarded data
     wire[31:0] d2 = data_i.fwd ? fwd_i : data_i.d2;
-
+    
     // Calculate data packet
     assign data_o.d1        = rp_data_i & bext32(~op_ismov);    // clear d1 if is move
     assign data_o.d2        =                                   // compute d2 shifts
@@ -47,12 +50,17 @@ module hs32_decode2 (
     assign data_o.rd        = data_i.rd;
     assign data_o.store     = op_isstr;
     assign data_o.xud       = data_i.xud;
+    assign data_o.isldr     = op_isldr;
+    assign data_o.isstr     = op_isstr;
 
     // Calculate data stall signals
-    assign rd2_o            = data_i.rd;
-    assign data_o.fwd       = (rd3_i == data_i.rm) && stl3_i;
-    assign stall_o          = 1'b0;
-
+    assign s2_o.rd          = data_i.rd;
+    assign s2_o.vld         = valid_i;
+    assign data_o.fwd       = (s3_i.rd == data_i.rm) && s3_i.vld && !s3_i.lsu;
+    assign stall_o          = (s3_i.rd == data_i.rm) && s3_i.vld && s3_i.lsu ||
+                              (l1_i.rd == data_i.rm) && l1_i.vld ||
+                              (l2_i.rd == data_i.rm) && l2_i.vld;
+    
     // Compute ALU controls
     hs32_aluctl ctl;
     reg[1:0] opr;

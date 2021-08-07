@@ -4,7 +4,9 @@
     `include "include/types.svh"
 `endif
 
-module hs32_alu (
+module hs32_alu #(
+    parameter USE_TECHMAP = 1
+) (
     input wire clk,
     input wire reset,
     input wire valid_i,
@@ -38,8 +40,16 @@ module hs32_alu (
     
     // Compute sum
     wire [32:0] sum;
-    hs32_adder #(.WIDTH(32)) u0 (
-        .A(a_i), .B(b_xor_op0), .CI(ci), .OUT(sum), .CO());
+    generate
+        if(USE_TECHMAP == 1) begin
+            assign sum = { 1'b0, a_i } + { 1'b0, b_xor_op0 } + { 32'b0, ci };
+        end else begin
+            hs32_adder #(.WIDTH(32)) u0 (
+                .A(a_i), .B(b_xor_op0),
+                .CI(ci), .OUT(sum), .CO()
+            );
+        end
+    endgenerate
 
     // Compute output
     assign out = r;
