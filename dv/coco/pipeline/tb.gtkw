@@ -1,0 +1,49 @@
+[*]
+[*] GTKWave Analyzer v3.3.86 (w)1999-2017 BSI
+[*] Sat Aug  7 03:08:18 2021
+[*]
+[dumpfile] "/data/mpw-two/dv/coco/pipeline/dump.fst"
+[dumpfile_mtime] "Sat Aug  7 02:53:32 2021"
+[dumpfile_size] 4998
+[savefile] "/data/mpw-two/dv/coco/pipeline/tb.gtkw"
+[timestart] 0
+[size] 1212 744
+[pos] -1 -1
+*-16.000000 70000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] .
+[treeopen] .hs32_pipeline.
+[treeopen] .hs32_pipeline.u2.
+[sst_width] 213
+[signals_width] 144
+[sst_expanded] 1
+[sst_vpaned_height] 202
+@28
+hs32_pipeline.clk
+hs32_pipeline.reset
+@200
+-
+@28
+hs32_pipeline.ready_o
+hs32_pipeline.valid_i
+hs32_pipeline.s1rdy
+hs32_pipeline.s1vld
+hs32_pipeline.s2rdy
+hs32_pipeline.s2vld
+hs32_pipeline.s3rdy
+hs32_pipeline.s3vld
+@200
+-
+@28
+hs32_pipeline.stall1
+hs32_pipeline.stall2
+hs32_pipeline.stall3
+@200
+-
+@28
+hs32_pipeline.reg_wp1_we1
+@22
+hs32_pipeline.op_i[31:0]
+@23
+hs32_pipeline.u2.fwd_i[31:0]
+[pattern_trace] 1
+[pattern_trace] 0

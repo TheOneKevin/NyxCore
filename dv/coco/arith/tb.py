@@ -42,8 +42,10 @@ event_list = { 'onregwrite': event_onregwrite }
 
 # Run a list of instructions through the pipeline
 async def run_test(dut, instrs, expects = None):
+    # TODO: Implement AHB secondary
     dut.banksel_i <= 0
     dut.ready_i <= 1
+    dut.HREADY_i <= 1
     # Clock and reset
     dut._log.info("Starting simulation")
     cocotb.fork(lib.drive_reset(dut, clkperiod, rstcycles))

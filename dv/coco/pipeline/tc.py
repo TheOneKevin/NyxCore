@@ -5,7 +5,7 @@ from tb import run_test
 async def test1(dut):
     await run_test(dut, [
         0x0010_0001,    # mov r1, 1
-        0x0931_0000,    # mov r3, r1
+        0x1131_0000,    # mov r3, r1
         0x0020_0002,    # mov r2, 2
         0x3031_2000,    # add r3, r1 + r2
     ],{'onregwrite':[
