@@ -1,11 +1,11 @@
-CURRENT_DIR	?= $(shell pwd)
-IMAGE_NAME ?= efabless/openlane:current
-OPENLANE_BASIC_COMMAND = "cd /project/openlane && flow.tcl -design ./ -save_path .. -save -tag build -overwrite"
+CURRENT_DIR	:= $(shell pwd)
+IMAGE_NAME := efabless/openlane:current
+OPENLANE_BASIC_COMMAND := "cd /project/openlane && flow.tcl -design ./ -save_path .. -save -tag build -overwrite"
 
 .PHONY: mount
 mount:
-	cd $(CURRENT_DIR) && docker run -it --rm 	\
-		-v $(OPENLANE_ROOT):/openLANE_flow 		\
+	cd $(CURRENT_DIR) && docker run -it --rm	\
+		-v $(OPENLANE_ROOT):/openLANE_flow		\
 		-v $(CURRENT_DIR):/project				\
 		-v $(PDK_ROOT):$(PDK_ROOT)				\
 		-e PDK_ROOT=$(PDK_ROOT)					\
@@ -13,7 +13,9 @@ mount:
 
 .PHONY: lint
 lint:
+ifneq ($(NO_LINT),1)
 	verilator -sv -Irtl -lint-only -Wall -Wno-fatal -Wno-context lint/waiver.vlt top.sv
+endif
 
 .PHONY: sv2v
 sv2v: lint
@@ -26,8 +28,9 @@ synth: sv2v
 
 .PHONY: tb
 tb: sv2v
+	mkdir -p build/tb/$(TEST_NAME)
 	iverilog -g2012 -Wno-anachronisms -P top.TEST_ID=$(TEST_ID) \
-		rtl/include/types.svh 									\
-		dv/tb/$(TEST_NAME)/tb.sv 								\
-		build/top.v -o build/$(TEST_NAME).tb.out
-	cd build && vvp $(TEST_NAME).tb.out -fst-speed
+		rtl/include/types.svh \
+		dv/tb/$(TEST_NAME)/tb.sv \
+		build/top.v -o build/tb/$(TEST_NAME)/tb.out
+	cd build/tb/$(TEST_NAME) && vvp tb.out -fst-speed

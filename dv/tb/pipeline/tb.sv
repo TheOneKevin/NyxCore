@@ -37,7 +37,7 @@ module top();
     wire[31:0] hrdata, haddr, hwdata;
     wire hwrite, hready, hresp;
     wire[1:0] htrans;
-    ahb3_dummy #(.ADDRSIZE(memsize)) ahb3 (
+    ahb3_dummy #(.ADDRSIZE(memsize), .tpd(7)) ahb3(
         .clk(clk), .resetn(!reset),
         .HREADY_o(hready), .HRESP_o(hresp), .HRDATA_o(hrdata),
         .HADDR_i(haddr), .HWRITE_i(hwrite),
@@ -67,7 +67,7 @@ module top();
     //--========================================================================
     // Pipeline event triggers
     //--========================================================================
-    
+
     event EventOnRegWrite;
     generate begin : OnRegWrite
         wire we1 = uut.regfile.wp1_we1_i;
@@ -76,9 +76,9 @@ module top();
         wire[31:0] data = uut.regfile.wp1_data_i;
         always @(posedge clk)
         if(!reset && (we1 || we2)) begin
+            doevent();
             ->EventOnRegWrite;
             $display("%t: Write r%0d = %h", $time, addr, data);
-            check(finish != 1, "Uncovered event!");
         end
     end
     endgenerate
@@ -90,9 +90,23 @@ module top();
         wire[31:0] data = ahb3.HWDATA_i;
         always @(posedge clk)
         if(!reset && we) begin
+            doevent();
             ->EventOnMemWrite;
             $display("%t: Write *%0d = %h", $time, addr, data);
-            check(finish != 1, "Uncovered event!");
+        end
+    end
+    endgenerate
+
+    event EventOnMemRead;
+    generate begin : OnMemRead
+        wire re = ahb3.active && !ahb3.hwrite;
+        wire[31:0] addr = ahb3.haddr[memsize-1:0];
+        wire[31:0] data = ahb3.mem[ahb3.haddr[memsize-1:0]];
+        always @(posedge clk)
+        if(!reset && re) begin
+            doevent();
+            ->EventOnMemRead;
+            $display("%t: Read  *%0d = %h", $time, addr, data);
         end
     end
     endgenerate

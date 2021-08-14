@@ -1,17 +1,18 @@
 [*]
 [*] GTKWave Analyzer v3.3.86 (w)1999-2017 BSI
-[*] Sat Aug  7 01:44:40 2021
+[*] Fri Aug 13 02:40:50 2021
 [*]
-[dumpfile] "/data/mpw-two/build/dump.fst"
-[dumpfile_mtime] "Sat Aug  7 01:27:09 2021"
-[dumpfile_size] 5086
+[dumpfile] "/data/mpw-two/build/tb/pipeline/dump.fst"
+[dumpfile_mtime] "Fri Aug 13 02:39:36 2021"
+[dumpfile_size] 6011
 [savefile] "/data/mpw-two/dv/tb/pipeline/tb.gtkw"
-[timestart] 3
-[size] 1212 744
+[timestart] 24
+[size] 1208 741
 [pos] -1 -1
-*-5.928452 120 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-4.928452 110 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
 [treeopen] top.uut.
+[treeopen] top.uut.regfile.
 [sst_width] 228
 [signals_width] 274
 [sst_expanded] 1
@@ -21,6 +22,8 @@ top.uut.clk
 top.uut.reset
 @200
 -
+@c00200
+-Pipeline
 @28
 top.uut.ready_o
 top.uut.valid_i
@@ -30,41 +33,211 @@ top.uut.s2rdy
 top.uut.s2vld
 top.uut.s3rdy
 top.uut.s3vld
+top.uut.valid_o
 @200
 -
-@29
+@28
 top.uut.stall1
-@28
 top.uut.stall2
+top.uut.stall3
+@1401200
+-Pipeline
+@c00200
+-LSU
+@28
+top.uut.lsu.valid_i
+@c00028
+top.uut.lsu.l1_o[5:0]
+@24
+(0)top.uut.lsu.l1_o[5:0]
+(1)top.uut.lsu.l1_o[5:0]
+(2)top.uut.lsu.l1_o[5:0]
+(3)top.uut.lsu.l1_o[5:0]
+(4)top.uut.lsu.l1_o[5:0]
+@28
+(5)top.uut.lsu.l1_o[5:0]
+@1401200
+-group_end
+@c00028
+top.uut.lsu.l2_o[5:0]
+@28
+(0)top.uut.lsu.l2_o[5:0]
+(1)top.uut.lsu.l2_o[5:0]
+(2)top.uut.lsu.l2_o[5:0]
+(3)top.uut.lsu.l2_o[5:0]
+(4)top.uut.lsu.l2_o[5:0]
+(5)top.uut.lsu.l2_o[5:0]
 @200
 -
-@28
-top.uut.reg_wp1_we1
+@1401200
+-group_end
 @22
+top.uut.lsu.wp_addr_o[3:0]
+top.uut.lsu.wp_data_o[31:0]
+@28
+top.uut.lsu.wp_we_o
+@1401200
+-LSU
+@c00200
+-Misc
+@c00022
 top.uut.op_i[31:0]
-top.uut.u2.fwd_i[31:0]
-@200
--
 @28
-top.uut.HRESP_i
-top.uut.HREADY_i
-@22
-top.uut.HRDATA_i[31:0]
+(0)top.uut.op_i[31:0]
+(1)top.uut.op_i[31:0]
+(2)top.uut.op_i[31:0]
+(3)top.uut.op_i[31:0]
+(4)top.uut.op_i[31:0]
+(5)top.uut.op_i[31:0]
+(6)top.uut.op_i[31:0]
+(7)top.uut.op_i[31:0]
+(8)top.uut.op_i[31:0]
+(9)top.uut.op_i[31:0]
+(10)top.uut.op_i[31:0]
+(11)top.uut.op_i[31:0]
+(12)top.uut.op_i[31:0]
+(13)top.uut.op_i[31:0]
+(14)top.uut.op_i[31:0]
+(15)top.uut.op_i[31:0]
+(16)top.uut.op_i[31:0]
+(17)top.uut.op_i[31:0]
+(18)top.uut.op_i[31:0]
+(19)top.uut.op_i[31:0]
+(20)top.uut.op_i[31:0]
+(21)top.uut.op_i[31:0]
+(22)top.uut.op_i[31:0]
+(23)top.uut.op_i[31:0]
+(24)top.uut.op_i[31:0]
+(25)top.uut.op_i[31:0]
+(26)top.uut.op_i[31:0]
+(27)top.uut.op_i[31:0]
+(28)top.uut.op_i[31:0]
+(29)top.uut.op_i[31:0]
+(30)top.uut.op_i[31:0]
+(31)top.uut.op_i[31:0]
+@1401200
+-group_end
+@c00022
+top.uut.u2.fwd_i[31:0]
+@28
+(0)top.uut.u2.fwd_i[31:0]
+(1)top.uut.u2.fwd_i[31:0]
+(2)top.uut.u2.fwd_i[31:0]
+(3)top.uut.u2.fwd_i[31:0]
+(4)top.uut.u2.fwd_i[31:0]
+(5)top.uut.u2.fwd_i[31:0]
+(6)top.uut.u2.fwd_i[31:0]
+(7)top.uut.u2.fwd_i[31:0]
+(8)top.uut.u2.fwd_i[31:0]
+(9)top.uut.u2.fwd_i[31:0]
+(10)top.uut.u2.fwd_i[31:0]
+(11)top.uut.u2.fwd_i[31:0]
+(12)top.uut.u2.fwd_i[31:0]
+(13)top.uut.u2.fwd_i[31:0]
+(14)top.uut.u2.fwd_i[31:0]
+(15)top.uut.u2.fwd_i[31:0]
+(16)top.uut.u2.fwd_i[31:0]
+(17)top.uut.u2.fwd_i[31:0]
+(18)top.uut.u2.fwd_i[31:0]
+(19)top.uut.u2.fwd_i[31:0]
+(20)top.uut.u2.fwd_i[31:0]
+(21)top.uut.u2.fwd_i[31:0]
+(22)top.uut.u2.fwd_i[31:0]
+(23)top.uut.u2.fwd_i[31:0]
+(24)top.uut.u2.fwd_i[31:0]
+(25)top.uut.u2.fwd_i[31:0]
+(26)top.uut.u2.fwd_i[31:0]
+(27)top.uut.u2.fwd_i[31:0]
+(28)top.uut.u2.fwd_i[31:0]
+(29)top.uut.u2.fwd_i[31:0]
+(30)top.uut.u2.fwd_i[31:0]
+(31)top.uut.u2.fwd_i[31:0]
+@1401200
+-group_end
 @200
 -
+@c00022
+top.uut.s2[5:0]
+@28
+(0)top.uut.s2[5:0]
+(1)top.uut.s2[5:0]
+(2)top.uut.s2[5:0]
+(3)top.uut.s2[5:0]
+(4)top.uut.s2[5:0]
+(5)top.uut.s2[5:0]
+@1401200
+-group_end
+@c00022
+top.uut.s3[5:0]
+@28
+(0)top.uut.s3[5:0]
+(1)top.uut.s3[5:0]
+(2)top.uut.s3[5:0]
+(3)top.uut.s3[5:0]
+(4)top.uut.s3[5:0]
+(5)top.uut.s3[5:0]
+@1401200
+-group_end
+@c00022
+top.uut.l1[5:0]
+@28
+(0)top.uut.l1[5:0]
+(1)top.uut.l1[5:0]
+(2)top.uut.l1[5:0]
+(3)top.uut.l1[5:0]
+(4)top.uut.l1[5:0]
+(5)top.uut.l1[5:0]
+@1401200
+-group_end
+@c00022
+top.uut.l2[5:0]
+@28
+(0)top.uut.l2[5:0]
+(1)top.uut.l2[5:0]
+(2)top.uut.l2[5:0]
+(3)top.uut.l2[5:0]
+(4)top.uut.l2[5:0]
+(5)top.uut.l2[5:0]
+@1401200
+-group_end
+-Misc
+@c00200
+-REGFILE
+@22
+top.uut.regfile.wp1_addr_i[3:0]
+top.uut.regfile.wp1_data_i[31:0]
+@28
+top.uut.regfile.wp1_we1_i
+top.uut.regfile.wp1_we2_i
+top.uut.regfile.wp1_wel_i
+@1401200
+-REGFILE
+@800200
+-AHB
+@28
+top.uut.lsu.valid_i
+@22
+top.ahb3.haddr[31:0]
+@28
+top.uut.HREADY_i
+top.uut.HTRANS_o[1:0]
 @22
 top.uut.HADDR_o[31:0]
+top.uut.HRDATA_i[31:0]
+@23
+top.uut.HWDATA_o[31:0]
+@200
+-
 @28
+top.uut.HWRITE_o
+top.uut.HRESP_i
 top.uut.HBURST_o[2:0]
 top.uut.HMASTLOCK_o
 @22
 top.uut.HPROT_o[3:0]
 @28
 top.uut.HSIZE_o[2:0]
-top.uut.HTRANS_o[1:0]
-@22
-top.uut.HWDATA_o[31:0]
-@28
-top.uut.HWRITE_o
+@1000200
+-AHB
 [pattern_trace] 1
 [pattern_trace] 0

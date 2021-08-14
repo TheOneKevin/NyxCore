@@ -2,9 +2,11 @@
     `default_nettype none
 `endif
 
+`timescale 1ns/1ns
 `include "rtl/include/amba3.svh"
 
 // Extremely basic AHB dummy memory
+// TODO: Very incomplete
 module ahb3_dummy (
     input wire clk,
     input wire resetn,
@@ -12,7 +14,7 @@ module ahb3_dummy (
     // AHB-lite slave interface
     output  wire        HREADY_o,
     output  wire        HRESP_o,
-    output  reg[31:0]   HRDATA_o,
+    output  wire[31:0]  HRDATA_o,
 
     // AHB-lite master interface
     input   wire[31:0]  HADDR_i,
@@ -25,31 +27,32 @@ module ahb3_dummy (
     input   wire[31:0]  HWDATA_i
 );
     parameter ADDRSIZE = 8;
-    reg[31:0] mem[(1<<ADDRSIZE)-1:0];
+    parameter tpd = 0;
 
+    reg[31:0] mem[(1<<ADDRSIZE)-1:0];
     reg[31:0] haddr;
     reg hwrite;
+    reg active;
     assign HREADY_o = 1'b1;
     assign HRESP_o = 1'b0;
+    assign #tpd HRDATA_o = active && !hwrite ? mem[haddr[ADDRSIZE-1:0]] : 32'h0;
+    
     always @(posedge clk)
     if(!resetn) begin
-        HRDATA_o <= 0;
         hwrite <= 0;
         haddr <= 0;
     end else if(HTRANS_i == `HTRANS_NOSEQ) begin
         hwrite <= HWRITE_i;
-        if(HWRITE_i) begin
-            haddr <= HADDR_i;
-        end else begin
-            HRDATA_o <= mem[HADDR_i[ADDRSIZE-1:0]];
-        end
+        haddr <= HADDR_i;
+        active <= 1;
     end else begin
-        HRDATA_o <= 0;
         hwrite <= 0;
+        haddr <= 0;
+        active <= 0;
     end
 
     always @(posedge clk)
-    if(hwrite) begin
+    if(hwrite && active) begin
         mem[haddr[ADDRSIZE-1:0]] <= HWDATA_i;
     end
 endmodule

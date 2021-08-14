@@ -1,3 +1,4 @@
+// TEST_CASES=1
 `ifndef VERILATOR_LINT
 localparam numinstrs =
     TEST_ID == 1 ? 5 : 0;
@@ -12,11 +13,11 @@ if(TEST_ID == 1) begin
         { 32'h3133_3000 }   // adc r3, r3, r3
     };
     initial begin
-        @(EventOnRegWrite) `check(OnRegWrite.addr == 1 && OnRegWrite.data == 1);
-        @(EventOnRegWrite) `check(OnRegWrite.addr == 2 && OnRegWrite.data == 32'hFFFF_FFFF);
-        @(EventOnRegWrite) `check(OnRegWrite.addr == 2 && OnRegWrite.data == 0);
-        @(EventOnRegWrite) `check(OnRegWrite.addr == 3 && OnRegWrite.data == 3);
-        @(EventOnRegWrite) `check(OnRegWrite.addr == 3 && OnRegWrite.data == 6);
+        @(EventOnRegWrite) check(OnRegWrite.addr == 1 && OnRegWrite.data == 1);
+        @(EventOnRegWrite) check(OnRegWrite.addr == 2 && OnRegWrite.data == 32'hFFFF_FFFF);
+        @(EventOnRegWrite) check(OnRegWrite.addr == 2 && OnRegWrite.data == 0);
+        @(EventOnRegWrite) check(OnRegWrite.addr == 3 && OnRegWrite.data == 3);
+        @(EventOnRegWrite) check(OnRegWrite.addr == 3 && OnRegWrite.data == 6);
         finish = 1;
     end
 end else initial begin

@@ -38,7 +38,8 @@ typedef struct packed {
     logic maskl;        // Mask left shift when 0
     logic maskr;        // Mask right shift when 0
     logic[4:0] opc;     // Opcode without MSB
-    logic fwd;          // Forward
+    logic fwd;          // Forward to next stage
+    logic fwd2;         // Forward to next next stage
     logic xud;          // Exception #UD
 } hs32_s1pkt;
 
@@ -49,8 +50,8 @@ typedef struct packed {
     logic we1;          // Write enable
     logic we2;          //
     logic[3:0] rd;      // rd address (passthrough)
-    logic fwd;          // Forward
-    logic store;        // Store rd (read rd)
+    logic fwd;          // Forward to d1
+    logic fwd2;         // Forward to d2
     logic xud;          // Exception #UD
     logic isldr;
     logic isstr;
@@ -62,6 +63,7 @@ typedef struct packed {
     logic[31:0] res;    // LSU address/ALU result for forwarding
     logic       memwe;
     logic       regwe;
+    logic       islsu;
 } hs32_s3pkt;
 
 typedef struct packed {

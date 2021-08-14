@@ -40,14 +40,16 @@ module hs32_pipeline (
     parameter USE_TECHMAP = 0;
     parameter REGFILE_RESET = 1;
     parameter REGFILE_DUPLICATE = 0;
+    parameter SIM_DEBUG_SKID_BUFFERS = 1;
+    parameter SIM_DEBUG_MESSAGES = 0;
     
     //--========================================================================
     // Register file
     //--========================================================================
 
-    wire[3:0] reg_wp1_a, reg_rp1_a, reg_rp2_a, reg_rp3_a;
-    wire[31:0] reg_wp1_d, reg_rp1_d, reg_rp2_d, reg_rp3_d;
-    wire reg_wp1_we1, reg_wp1_we2;
+    wire[3:0] reg_wp1_a, reg_wp2_a, reg_rp1_a, reg_rp2_a, reg_rp3_a;
+    wire[31:0] reg_wp1_d, reg_wp2_d, reg_rp1_d, reg_rp2_d, reg_rp3_d;
+    wire reg_wp1_we1, reg_wp1_we2, reg_wp2_we1;
     
     hs32_regfile4r1w #(
         .RESET(REGFILE_RESET), .DUPLICATE_FILE(REGFILE_DUPLICATE)
@@ -56,8 +58,10 @@ module hs32_pipeline (
         .banksel_i(banksel_i),
 
         // Write port 1
-        .wp1_addr_i(reg_wp1_a), .wp1_data_i(reg_wp1_d),
-        .wp1_we1_i(reg_wp1_we1), .wp1_we2_i(reg_wp1_we2),
+        .wp1_addr_i(s3vld ? reg_wp1_a : reg_wp2_a),
+        .wp1_data_i(s3vld ? reg_wp1_d : reg_wp2_d),
+        .wp1_we1_i (s3vld ? reg_wp1_we1 : reg_wp2_we1),
+        .wp1_we2_i (s3vld ? reg_wp1_we2 : 1'b0),
         .wp1_wel_i(1'b1),
         
         // Read port 1
@@ -77,7 +81,7 @@ module hs32_pipeline (
     // Pipeline stages and buffer
     //--========================================================================
 
-    // StageN combinational (c) + latched (l) paths
+    // Stage N combinational (c) and latched (l) paths
     wire[31:0] opl;
     hs32_s1pkt data1c, data1l;
     hs32_s2pkt data2c, data2l;
@@ -87,6 +91,7 @@ module hs32_pipeline (
     wire s1rdy, s1vld, s2rdy, s2vld, s3rdy, s3vld, l1rdy, l1vld;
     wire stall1, stall2, stall3;
     wire[3:0] rd2, rd3;
+    wire[31:0] lfwd;
 
     // TODO: Remove
     assign valid_o = l1vld;
@@ -113,8 +118,8 @@ module hs32_pipeline (
     skid_buffer #(.WIDTH($bits(data3c))) skid3 (
         .clk(clk), .reset(reset),
         .stall_i(1'b0),
-        .rdy_o(s3rdy), .val_i(s3vld), .d_i(data3c),
-        .rdy_i(l1rdy), .val_o(l1vld), .d_o(data_o)
+        .rdy_o(), .val_i(s3vld), .d_i(data3c),
+        .rdy_i(s3rdy), .val_o(l1vld), .d_o(data_o)
     );
 
     // Combinational paths
@@ -170,13 +175,14 @@ module hs32_pipeline (
         .clk(clk), .resetn(!reset),
 
         // Pipeline data
-        .valid_i(l1vld), .ready_o(l1rdy), .data_i(data_o),
+        .valid_i(s3vld & data3c.islsu),
+        .ready_o(s3rdy), .data_i(data3c),
 
         // Hazard detection
-        .l1_o(l1), .l2_o(l2), .fwd_o(),
+        .l1_o(l1), .l2_o(l2), .fwd_o(lfwd),
 
         // Register write port 2
-        .wp_addr_o(), .wp_data_o(), .wp_we_o(),
+        .wp_addr_o(reg_wp2_a), .wp_data_o(reg_wp2_d), .wp_we_o(reg_wp2_we1),
 
         // AHB3-lite
         .HREADY_i, .HRESP_i, .HRDATA_i,
@@ -184,4 +190,38 @@ module hs32_pipeline (
         .HSIZE_o, .HBURST_o, .HPROT_o,
         .HTRANS_o, .HMASTLOCK_o, .HWDATA_o
     );
+
+    //--========================================================================
+    // Debug trace
+    //--========================================================================
+
+    generate
+        if(SIM_DEBUG_SKID_BUFFERS == 1) begin
+            wire[31:0] ds1, ds2, ds3;
+            skid_buffer #(.WIDTH($bits(op_i))) debugskid0 (
+                .clk(clk), .reset(reset), .stall_i(stall1),
+                .rdy_o(ready_o), .val_i(valid_i), .d_i(op_i),
+                .rdy_i(s1rdy), .val_o(s1vld), .d_o(ds1)
+            );
+            skid_buffer #(.WIDTH($bits(op_i))) debugskid1 (
+                .clk(clk), .reset(reset), .stall_i(stall2),
+                .rdy_o(s1rdy), .val_i(s1vld), .d_i(ds1),
+                .rdy_i(s2rdy), .val_o(s2vld), .d_o(ds2)
+            );
+            skid_buffer #(.WIDTH($bits(op_i))) debugskid2 (
+                .clk(clk), .reset(reset), .stall_i(stall3),
+                .rdy_o(s2rdy), .val_i(s2vld), .d_i(ds2),
+                .rdy_i(s3rdy), .val_o(s3vld), .d_o(ds3)
+            );
+            if(SIM_DEBUG_MESSAGES == 1) begin
+                always @(posedge clk)
+                if(!reset) begin
+                    $display("%X %X %X", ds1, ds2, ds3);
+                    if(reg_wp2_we1) begin
+                        $display("r%X = %X", reg_wp2_a, reg_wp2_d);
+                    end
+                end
+            end
+        end
+    endgenerate
 endmodule

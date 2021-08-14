@@ -93,7 +93,7 @@ module hs32_lsu (
     end
 
     // Write port
-    assign wp_we_o      = pipeline.regwe & HREADY_i;
+    assign wp_we_o      = pipeline.regwe & pipeline.valid & HREADY_i;
     assign wp_data_o    = HRDATA_i;
     assign wp_addr_o    = pipeline.rd;
 
@@ -103,6 +103,9 @@ module hs32_lsu (
     assign ready_o      = HREADY_i;
     assign l1_o.rd      = pipeline_buf.rd;
     assign l1_o.vld     = pipeline_buf.regwe & pipeline_buf.valid;
+    assign l1_o.lsu     = pipeline_buf.regwe;
     assign l2_o.rd      = pipeline.rd;
-    assign l2_o.vld     = pipeline.regwe & pipeline_buf.valid & HREADY_i;
+    assign l2_o.vld     = pipeline.regwe & pipeline.valid & HREADY_i;
+    assign l2_o.lsu     = pipeline.regwe;
+    assign fwd_o        = 32'h0;
 endmodule

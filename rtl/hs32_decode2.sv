@@ -45,21 +45,25 @@ module hs32_decode2 (
     assign data_o.d2        =                                   // compute d2 shifts
         (shr_out & bext32(data_i.maskr)) |
         ((d2 << data_i.shl) & bext32(data_i.maskl));
-    assign data_o.we1       = !op_isstr;
+    assign data_o.we1       = !op_islsu;
     assign data_o.we2       = 1'b0;
     assign data_o.rd        = data_i.rd;
-    assign data_o.store     = op_isstr;
     assign data_o.xud       = data_i.xud;
     assign data_o.isldr     = op_isldr;
     assign data_o.isstr     = op_isstr;
 
     // Calculate data stall signals
+    wire stall_rn3          = s3_i.vld && data_i.rm == s3_i.rd && !s3_i.lsu;
+    wire stall_rn3_lsu      = s3_i.vld && data_i.rm == s3_i.rd &&  s3_i.lsu;
+    wire stall_l1           = l1_i.vld && data_i.rm == l1_i.rd;
+    wire stall_l2           = l2_i.vld && data_i.rm == l2_i.rd;
+    assign data_o.fwd       = stall_rn3;
+    assign data_o.fwd2      = data_i.fwd2;
+    assign stall_o          = stall_rn3_lsu || stall_l1 || stall_l2;
+
     assign s2_o.rd          = data_i.rd;
-    assign s2_o.vld         = valid_i;
-    assign data_o.fwd       = (s3_i.rd == data_i.rm) && s3_i.vld && !s3_i.lsu;
-    assign stall_o          = (s3_i.rd == data_i.rm) && s3_i.vld && s3_i.lsu ||
-                              (l1_i.rd == data_i.rm) && l1_i.vld ||
-                              (l2_i.rd == data_i.rm) && l2_i.vld;
+    assign s2_o.vld         = valid_i && !op_isstr;
+    assign s2_o.lsu         = !op_islsu && (|data_i.shl) == 1'b0 && (|data_i.shr) == 1'b0;
     
     // Compute ALU controls
     hs32_aluctl ctl;

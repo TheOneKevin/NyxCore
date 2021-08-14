@@ -40,11 +40,16 @@ module hs32_decode1 (
     assign data_o.opc   = opc;
 
     // Calculate data stall signals
-    assign data_o.fwd   = op.enc.r.rn == s3_i.rd && s3_i.vld && op_renc && !s3_i.lsu;
-    assign stall_o      = op.enc.r.rn == s2_i.rd && s2_i.vld && op_renc ||
-                          op.enc.r.rn == s3_i.rd && s3_i.vld && op_renc && s3_i.lsu ||
-                          op.enc.r.rn == l1_i.rd && l1_i.vld && op_renc ||
-                          op.enc.r.rn == l2_i.rd && l2_i.vld && op_renc;
+    wire stall_rn2      = op_renc && s2_i.vld && op.enc.r.rn == s2_i.rd && !s2_i.lsu;
+    wire stall_rn2_nsnl = op_renc && s2_i.vld && op.enc.r.rn == s2_i.rd &&  s2_i.lsu; // no sh, not lsu
+    wire stall_rn3      = op_renc && s3_i.vld && op.enc.r.rn == s3_i.rd && !s3_i.lsu;
+    wire stall_rn3_lsu  = op_renc && s3_i.vld && op.enc.r.rn == s3_i.rd &&  s3_i.lsu;
+    wire stall_l1       = op_renc && l1_i.vld && op.enc.r.rn == l1_i.rd;
+    wire stall_l2       = op_renc && l2_i.vld && op.enc.r.rn == l2_i.rd;
+
+    assign data_o.fwd   = stall_rn3;
+    assign data_o.fwd2  = stall_rn2_nsnl;
+    assign stall_o      = stall_rn2 || stall_rn3_lsu || stall_l1 || stall_l2;
 
     // Valid opcode map
     reg ud;
