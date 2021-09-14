@@ -15,6 +15,12 @@
     ],
     "systemverilog.launchConfiguration": "verilator -sv --lint-only +define+VERILATOR_LINT -Irtl lint/waiver.vlt",
 
+    // teroshdl
+    "teroshdl.linter.verilog.linter.a": "None",
+    "teroshdl.linter.verilog.linter.verilator.arguments": "-sv --lint-only +define+VERILATOR_LINT -Irtl --bbox-unsup lint/waiver.vlt",
+    "teroshdl.formatter.verilog.type.istyle.spaces": 4,
+    "teroshdl.linter.verilog.linter.verilator.path": "verilator",
+
     // vscode configs
     "python.pythonPath": "/usr/bin/python3",
     "python.analysis.extraPaths": [
@@ -34,5 +40,5 @@
     "restructuredtext.languageServer.disabled": true,
     "restructuredtext.preview.docutil.disabled": true,
     "restructuredtext.linter.disabled": true,
-    "restructuredtext.preview.sphinx.disabled": true
+    "restructuredtext.preview.sphinx.disabled": true,
 }

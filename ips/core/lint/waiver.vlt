@@ -3,4 +3,4 @@
 lint_off -rule MULTITOP
 lint_off -rule DECLFILENAME
 lint_off -rule UNOPTFLAT -file "build/top.v"
-lint_off -rule UNUSED -file "rtl/hs32_regfile4r1w.sv"
+lint_off -rule UNUSED -file "ips/core/rtl/hs32_regfile4r1w.sv"

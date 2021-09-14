@@ -1,27 +1,2 @@
-# build folders
-build/
-openlane/**/runs
-openlane/**/config_*.tcl
-openlane/**/base_config.tcl
-
-# .vscode non-configs
-.vscode/*.log
-.vscode/**/
-
-# testbench traces
-*.vcd
-
-# python/cocotb
-*/coco/**/__pycache__/
-*/coco/**/*.pyc
-*/coco/**/sim_build/
-*/coco/**/*.dat
-*/coco/**/*.fst
-*/coco/**/*.xml
-
-# coverage
-*.info
-
-# others
-.venv/
-docs/_build/
+**/.vscode/**/
+**/.vscode/*.log
