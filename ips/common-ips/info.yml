@@ -1,0 +1,9 @@
+namespace: common-ips
+depends:
+third-party:
+  - pulp-common:
+    repo: "https://github.com/pulp-platform/common_cells.git"
+    branch: v1.23.0
+ips:
+  - fifo_v3:
+    path: third-party/pulp-common/fifo_v3.sv

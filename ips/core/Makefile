@@ -1,5 +1,5 @@
 CURRENT_DIR	:= $(shell pwd)
-IMAGE_NAME := efabless/openlane:current
+IMAGE_NAME := efabless/openlane:2021.10.25_20.35.00
 OPENLANE_BASIC_COMMAND := "cd /project/openlane && flow.tcl -design ./ -save_path .. -save -tag build -overwrite"
 
 .PHONY: mount
