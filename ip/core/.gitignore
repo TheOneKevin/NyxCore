@@ -4,10 +4,6 @@ openlane/**/runs
 openlane/**/config_*.tcl
 openlane/**/base_config.tcl
 
-# .vscode non-configs
-.vscode/*.log
-.vscode/**/
-
 # testbench traces
 *.vcd
 
@@ -21,7 +17,3 @@ openlane/**/base_config.tcl
 
 # coverage
 *.info
-
-# others
-.venv/
-docs/_build/

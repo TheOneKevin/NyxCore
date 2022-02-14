@@ -1,0 +1,3 @@
+[submodule "ip/sky130_sram_macros"]
+	path = ip/sky130_sram_macros
+	url = https://github.com/efabless/sky130_sram_macros.git

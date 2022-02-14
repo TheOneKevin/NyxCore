@@ -1,2 +1,7 @@
+# .vscode non-configs
 **/.vscode/**/
 **/.vscode/*.log
+
+# others
+.venv/
+docs/_build/
