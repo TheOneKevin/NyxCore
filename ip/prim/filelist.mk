@@ -1,0 +1,1 @@
+FILELIST += $(wildcard $(IPS_ROOT)/prim/rtl/*.sv)

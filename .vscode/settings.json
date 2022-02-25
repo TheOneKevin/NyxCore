@@ -13,7 +13,7 @@
     "systemverilog.includeIndexing": [
         "**/*.{sv,svh,v,vh}"
     ],
-    "systemverilog.launchConfiguration": "verilator -sv --lint-only +define+VERILATOR_LINT +define+FORMAL -Irtl lint/waiver.vlt",
+    "systemverilog.launchConfiguration": "verilator -sv --bbox-unsup --lint-only +define+VERILATOR_LINT +define+FORMAL lint/waiver.vlt",
 
     // teroshdl
     "teroshdl.linter.verilog.linter.a": "None",

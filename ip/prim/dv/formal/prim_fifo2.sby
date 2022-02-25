@@ -1,0 +1,23 @@
+[tasks]
+proof
+cover
+
+[options]
+proof: mode prove
+proof: depth 50
+cover: mode cover
+cover: depth 20
+expect pass
+
+[engines]
+proof: aiger suprove
+cover: smtbmc yices
+# proof: smtbmc yices
+
+[script]
+read -sv -formal prim_fifo2.sv prim_fifo2.proof.sv
+prep -top top
+
+[files]
+../../rtl/prim_fifo2.sv
+prim_fifo2.proof.sv
