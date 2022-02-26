@@ -20,7 +20,8 @@ module prim_fifo2 #(
     reg[WIDTH:0] buf1;
     reg[WIDTH:0] buf2;
 
-    logic drdy_r = drdy_i & !dstall_i;
+    logic drdy_r;
+    assign drdy_r = drdy_i & !dstall_i;
 
     always @(*)
     case(buf2[0])
