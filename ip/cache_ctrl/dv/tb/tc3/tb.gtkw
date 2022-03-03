@@ -1,0 +1,132 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Sun Feb 27 18:46:20 2022
+[*]
+[dumpfile] "/data/mpw-two/ip/cache_ctrl/build/tb/tc3/dump.fst"
+[dumpfile_mtime] "Sun Feb 27 18:44:28 2022"
+[dumpfile_size] 8304
+[savefile] "/data/mpw-two/ip/cache_ctrl/dv/tb/tc3/tb.gtkw"
+[timestart] 63
+[size] 1126 767
+[pos] -1 -1
+*-6.528748 110 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] tb.
+[treeopen] tb.u.
+[treeopen] tb.u.dut.
+[treeopen] tb.u.dut.d_pipeline.
+[treeopen] tb.u.dut.gen_cache_sram[1].
+[sst_width] 252
+[signals_width] 274
+[sst_expanded] 1
+[sst_vpaned_height] 224
+@800200
+-dut
+@28
+tb.u.dut.clk
+tb.u.EventUpstreamReady
+tb.u.dut.reset
+@c00200
+-scan
+@28
+tb.u.dut.scan_enb_i
+@22
+tb.u.dut.scan_addr_i[8:0]
+tb.u.dut.scan_data_i[31:0]
+tb.u.dut.scan_web_cache_i[3:0]
+@800022
+tb.u.dut.scan_web_tag_i[3:0]
+@28
+(0)tb.u.dut.scan_web_tag_i[3:0]
+(1)tb.u.dut.scan_web_tag_i[3:0]
+(2)tb.u.dut.scan_web_tag_i[3:0]
+(3)tb.u.dut.scan_web_tag_i[3:0]
+@1001200
+-group_end
+@1401200
+-scan
+@28
+tb.u.dut.p0_urdy_o
+tb.u.dut.p0_uvld_i
+tb.u.EventUpstreamBeat
+tb.u.dut.p0_drdy_i
+tb.u.dut.p0_dvld_o
+tb.u.EventDownstreamBeat
+@22
+tb.u.dut.p0_addr_i[31:0]
+tb.u.dut.p0_ddat_o[31:0]
+tb.u.dut.p0_wdat_i[31:0]
+@28
+tb.u.dut.p0_web_i
+@22
+tb.u.dut.p0_wmask_i[3:0]
+@200
+-
+@22
+tb.u.dut.p0_tag_sram[175:0]
+tb.u.dut.p0_cache_sram[176:0]
+@28
+tb.u.dut.dpipe_hit
+@29
+tb.u.dut.dpipe_dvld
+@28
+tb.u.dut.dpipe_drdy
+@1000200
+-dut
+@800200
+-cache sram 1
+@22
+tb.u.dut.gen_cache_sram[1].cache_sram.addr0[8:0]
+tb.u.dut.gen_cache_sram[1].cache_sram.addr0_reg[8:0]
+@1000200
+-cache sram 1
+@800200
+-b1
+@28
+tb.u.dut.d_pipeline.B1.clk
+tb.u.dut.d_pipeline.B1.dstall_i
+tb.u.dut.d_pipeline.B1.urdy_o
+tb.u.dut.d_pipeline.B1.uvld_i
+tb.u.dut.d_pipeline.B1.EventUpstreamBeat
+tb.u.dut.d_pipeline.B1.drdy_i
+tb.u.dut.d_pipeline.B1.dvld_o
+tb.u.dut.d_pipeline.B1.EventDownstreamBeat
+@1000200
+-b1
+@800200
+-b2
+@28
+tb.u.dut.d_pipeline.B2.uvld_i
+tb.u.dut.d_pipeline.B2.urdy_o
+tb.u.dut.d_pipeline.B2.EventUpstreamBeat
+tb.u.dut.d_pipeline.B2.dvld_o
+tb.u.dut.d_pipeline.B2.drdy_i
+tb.u.dut.d_pipeline.B2.EventDownstreamBeat
+@1000000a8
+tb.u.dut.d_pipeline.B2.buf1[325:0]
+@a2
+tb.u.dut.d_pipeline.B2.buf2[325:0]
+@28
+tb.u.dut.d_pipeline.B2.drdy_r
+tb.u.dut.d_pipeline.B2.dstall_i
+@1000200
+-b2
+@c00200
+-waysel
+@22
+tb.u.dut.d_pipeline.CD.addr_i[31:0]
+tb.u.dut.d_pipeline.CD.data_o[31:0]
+tb.u.dut.d_pipeline.CD.dataways_i[127:0]
+@28
+tb.u.dut.d_pipeline.CD.hit_o
+@22
+tb.u.dut.d_pipeline.CD.tagways_i[127:0]
+tb.u.dut.d_pipeline.CD.way_hit[3:0]
+tb.u.dut.d_pipeline.CD.way_miss_o[3:0]
+@1401200
+-waysel
+@c00200
+-fsm
+@1401200
+-fsm
+[pattern_trace] 1
+[pattern_trace] 0

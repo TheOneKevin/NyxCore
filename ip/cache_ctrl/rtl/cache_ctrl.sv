@@ -1,4 +1,6 @@
-`default_nettype none
+`ifdef VERILATOR_LINT
+    `default_nettype none
+`endif
 
 module cache_ctrl(
     input   wire clk,
@@ -14,6 +16,8 @@ module cache_ctrl(
     output  wire        p0_dvld_o,
     input   wire        p0_drdy_i,
     output  wire[31:0]  p0_ddat_o,
+    //
+    input   wire        p0_fsm_ack_i,
     //
     input   wire        scan_clk_i,
     input   wire        scan_enb_i,
@@ -38,17 +42,17 @@ module cache_ctrl(
     typedef struct packed {
         logic[7:0] addr;
         logic[32*NUM_WAYS-1:0] rdat;
-        logic[NUM_WAYS-1:0] web;
         logic[3:0] wmask;
         logic[31:0] wdat;
+        logic[NUM_WAYS-1:0] web;
     } tag_sram_rw;
 
     typedef struct packed {
         logic[8:0] addr;
         logic[32*NUM_WAYS-1:0] rdat;
-        logic[NUM_WAYS-1:0] web;
         logic[3:0] wmask;
         logic[31:0] wdat;
+        logic[NUM_WAYS-1:0] web;
     } cache_sram_rw;
 
     logic[6:0]  dpipe_tag_sram_addr;
@@ -58,7 +62,7 @@ module cache_ctrl(
     logic[3:0]  dpipe_cache_sram_wmask;
     logic[31:0] dpipe_ddat;
     logic[31:0] dpipe_addr;
-    logic dpipe_dvld, dpipe_drdy, dpipe_hit;
+    logic dpipe_dvld, dpipe_drdy, dpipe_hit, dpipe_we;
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -74,7 +78,7 @@ module cache_ctrl(
             p0_tag_sram.web     = 4'b1111;
             p0_tag_sram.wmask   = 4'b1111;
 
-            p0_cache_sram.addr  = dpipe_cache_sram_addr;
+            p0_cache_sram.addr  = dpipe_we ? dpipe_addr[8:0] : dpipe_cache_sram_addr;
             p0_cache_sram.wdat  = dpipe_cache_sram_wdat;
             p0_cache_sram.web   = dpipe_cache_sram_web | {4{!dpipe_dvld}};
             p0_cache_sram.wmask = dpipe_cache_sram_wmask;
@@ -136,20 +140,9 @@ module cache_ctrl(
         end
     endgenerate
 
-    cache_ctrl_fsm #(
-
-    ) fsm (
-        .clk, .reset,
-        // 
-        .dpipe_urdy_o   (dpipe_drdy),
-        .dpipe_uvld_i   (dpipe_dvld),
-        .dpipe_hit_i    (dpipe_hit),
-        .dpipe_addr_i   (dpipe_addr)
-    );
-
     ////////////////////////////////////////////////////////////////////////////
 
-    assign p0_dvld_o = dpipe_hit & dpipe_dvld;
+    assign p0_dvld_o = dpipe_hit & dpipe_dvld & !dpipe_we;
     assign p0_ddat_o = dpipe_ddat;
     cache_ctrl_pipeline #(
         
@@ -173,9 +166,22 @@ module cache_ctrl(
         .drdy_i         (dpipe_drdy & p0_drdy_i),
         .ddat_o         (dpipe_ddat),
         .addr_o         (dpipe_addr),
+        .we_o           (dpipe_we),
         .cache_web_o    (dpipe_cache_sram_web),
         .wmask_o        (dpipe_cache_sram_wmask),
         .wdat_o         (dpipe_cache_sram_wdat)
+    );
+
+    cache_ctrl_fsm #(
+
+    ) dpipe_fsm (
+        .clk, .reset,
+        // 
+        .urdy_o   (dpipe_drdy),
+        .uvld_i   (dpipe_dvld),
+        .hit_i    (dpipe_hit),
+        .addr_i   (dpipe_addr),
+        .ack_i    (p0_fsm_ack_i)
     );
     
 endmodule

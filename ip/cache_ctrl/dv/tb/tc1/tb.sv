@@ -1,13 +1,14 @@
 `ifdef VERILATOR_LINT
-    `include "../top.sv"
+    `default_nettype none
+    `define CACHE_CTRL_TB
 `endif
 
 module tb();
-    parameter simcycles = 50;
+    parameter simcycles = 100;
     parameter rstcycles = 1;
 
     top #(rstcycles) u();
-    monitor #(.SIMCYCLES(simcycles), .TEST_ID(1)) m(u.clk);
+    tb_monitor #(.SIMCYCLES(simcycles), .TEST_ID(1)) m(u.clk);
 
     initial begin
         $dumpfile({ "dump.fst" });
@@ -44,14 +45,17 @@ module tb();
         // Ungate reset
         @(posedge u.clk) u.reset_gate <= 0;
         $display("Reset ungated");
+    end
+
+    initial begin
         // Read from cache line
         for(i = 0; i < 4; i++) begin
-            u.read_addr(32'h0FF001F0 + i);
-            u.read_addr(32'h0AA001F0 + i);
-            u.read_addr(32'h0BB001F0 + i);
-            u.read_addr(32'h000001F0 + i);
+            u.q.push_back(lib::get_read_pkt(32'h0FF001F0 + i));
+            u.q.push_back(lib::get_read_pkt(32'h0AA001F0 + i));
+            u.q.push_back(lib::get_read_pkt(32'h0BB001F0 + i));
+            u.q.push_back(lib::get_read_pkt(32'h000001F0 + i));
         end
-        @(u.EventUpstreamReady) u.uvld <= 0;
+        u.q.push_back(lib::get_null_pkt(0));
     end
 
     initial begin

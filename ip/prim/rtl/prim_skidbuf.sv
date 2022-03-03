@@ -13,14 +13,13 @@ module prim_skidbuf #(
     input   wire            uvld_i,
     input   wire[WIDTH-1:0] udat_i,
     // Downstream ports
-    input   wire            dstall_i,
     input   wire            drdy_i,
     output  wire            dvld_o,
     output  reg [WIDTH-1:0] ddat_o
 );
     reg val_r;
-    assign urdy_o = (drdy_i & !dstall_i) | !val_r;
-    assign dvld_o = val_r & !dstall_i;
+    assign urdy_o = drdy_i | !val_r;
+    assign dvld_o = val_r;
 
     // Drives: d_o
     generate
@@ -43,4 +42,13 @@ module prim_skidbuf #(
     end else if(urdy_o) begin
         val_r <= uvld_i;
     end
+
+`ifdef SIMULATION
+    event EventUpstreamBeat;
+    always @(posedge clk)
+    if(!reset && urdy_o && uvld_i) -> EventUpstreamBeat;
+    event EventDownstreamBeat;
+    always @(posedge clk)
+    if(!reset && drdy_i && dvld_o) -> EventDownstreamBeat;
+`endif
 endmodule

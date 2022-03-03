@@ -5,15 +5,11 @@
 
     // imctradingbv.svlangserver
     "systemverilog.disableLinting": false,
-    "systemverilog.excludeIndexing": [
-        "**/openlane/**",
-        ".vscode/**",
-        ".git/**"
-    ],
+    "systemverilog.excludeIndexing": "ip/core/**,**/openlane/**,.vscode/*,.git/**",
     "systemverilog.includeIndexing": [
         "**/*.{sv,svh,v,vh}"
     ],
-    "systemverilog.launchConfiguration": "verilator -sv --bbox-unsup --lint-only +define+VERILATOR_LINT +define+FORMAL lint/waiver.vlt",
+    "systemverilog.launchConfiguration": "verilator -sv -F lint/filelist.f",
 
     // teroshdl
     "teroshdl.linter.verilog.linter.a": "None",
@@ -41,4 +37,6 @@
     "restructuredtext.preview.docutil.disabled": true,
     "restructuredtext.linter.disabled": true,
     "restructuredtext.preview.sphinx.disabled": true,
+    "python.linting.enabled": true,
+    "systemverilog.compileOnSave": true,
 }

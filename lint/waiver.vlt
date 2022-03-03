@@ -1,0 +1,8 @@
+`verilator_config
+
+lint_off -rule MULTITOP
+lint_off -rule DECLFILENAME
+
+lint_off -rule STMTDLY -file "*sky130_sram_*"
+lint_off -rule STMTDLY -file "*simlib/*"
+lint_off -rule UNOPTFLAT -file "build/top.v"

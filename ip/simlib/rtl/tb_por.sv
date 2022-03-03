@@ -1,4 +1,4 @@
-module power_on_reset(clk, reset, reset_gate);
+module tb_por(clk, reset, reset_gate);
     input  logic reset_gate;
     output logic clk;
     output logic reset;

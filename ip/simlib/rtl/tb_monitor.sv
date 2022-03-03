@@ -1,4 +1,4 @@
-module monitor(input logic clk);
+module tb_monitor(input logic clk);
     parameter SIMCYCLES = 0;
     parameter TEST_ID = 0;
 

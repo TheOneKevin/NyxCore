@@ -23,7 +23,6 @@ module cache_tag_waysel #(
     wire[NUM_WAYS-1:0] tag_and_data [DATA_WIDTH-1:0];
 
     genvar i;
-    genvar j;
     generate
         for(i = 0; i < NUM_WAYS; i++) begin
             // Compare addr_i tag with tagways_i tag, then and with enable bit
@@ -32,16 +31,18 @@ module cache_tag_waysel #(
                   tagways_i[TAG_SRAM_DATA_WIDTH*i+:TAG_WIDTH])
             ) & tagways_i[32*i+31+:1];
         end
-        for(i = 0; i < DATA_WIDTH; i++) begin
-            for(j = 0; j < NUM_WAYS; j++) begin
-                assign tag_and_data[i][j] = dataways_i[32*j+i+:1] & way_hit[j];
-            end
-        end
-        for(i = 0; i < DATA_WIDTH; i++) begin
-            assign data_o[i] = | tag_and_data[i];
-        end
     endgenerate
+
+    prim_muxonehot #(
+        .DATA_COUNT(NUM_WAYS),
+        .DATA_WIDTH(DATA_WIDTH),
+        .OPERATION("OR")
+    ) mux (
+        .mask_i(way_hit),
+        .data_i(dataways_i),
+        .data_o(data_o)
+    );
     
     assign hit_o = | way_hit;
-    assign way_miss_o = !way_hit;
+    assign way_miss_o = ~way_hit;
 endmodule

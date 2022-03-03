@@ -1,5 +1,6 @@
 `ifdef VERILATOR_LINT
-    `include "../top.sv"
+    `default_nettype none
+    `define CACHE_CTRL_TB
 `endif
 
 module tb();
@@ -7,7 +8,7 @@ module tb();
     parameter rstcycles = 1;
 
     top #(rstcycles) u();
-    monitor #(.SIMCYCLES(simcycles), .TEST_ID(2)) m(u.clk);
+    tb_monitor #(.SIMCYCLES(simcycles), .TEST_ID(2)) m(u.clk);
 
     initial begin
         $dumpfile({ "dump.fst" });
@@ -30,13 +31,17 @@ module tb();
         // Ungate reset
         @(posedge u.clk) u.reset_gate <= 0;
         $display("Reset ungated");
+    end
+    initial begin
         // Read from cache line
-        u.read_addr(32'h011001F0);
-        u.read_addr(32'h022001F0);
-        u.read_addr(32'h0AA001F0); // Hit
-        u.read_addr(32'h0EE001F0);
-        u.read_addr(32'h0FF001F0);
-        @(u.EventUpstreamReady) u.uvld <= 0;
+        u.q.push_back(lib::get_read_pkt(32'h011001F0));
+        u.q.push_back(lib::get_read_pkt(32'h022001F0));
+        u.q.push_back(lib::get_read_pkt(32'h0AA001F0)); // Hit
+        u.q.push_back(lib::get_read_pkt(32'h033001F0));
+        u.q.push_back(lib::get_read_pkt(32'h044001F0));
+        u.q.push_back(lib::get_read_pkt(32'h055001F0));
+        u.q.push_back(lib::get_read_pkt(32'h066001F0));
+        u.q.push_back(lib::get_null_pkt(0));
     end
 
     initial begin

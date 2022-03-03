@@ -12,7 +12,9 @@
  * NB: CD drives a stall signal to BUF1 to prevent write hazards
  */
 
-`default_nettype none
+`ifdef VERILATOR_LINT
+    `default_nettype none
+`endif
 
 module cache_ctrl_pipeline #(
     // TODO: Specify parameter constraints
@@ -33,7 +35,7 @@ module cache_ctrl_pipeline #(
     b1_ds_data_i, b1_ds_tag_i,
     //
     dvld_o, drdy_i, hit_o, ddat_o, addr_o,
-    cache_web_o, wmask_o, wdat_o
+    cache_web_o, wmask_o, wdat_o, we_o
 );
     localparam DATA_WIDTH = CLINE_WORD_WIDTH;
     localparam CLINE_OFFSET = $clog2(CLINE_SIZE_WORD);
@@ -62,6 +64,7 @@ module cache_ctrl_pipeline #(
     output  wire dvld_o;
     input   wire drdy_i;
     output  wire hit_o;
+    output  wire we_o;
     output  wire[DATA_WIDTH-1:0]        ddat_o;
     output  wire[ADDR_WIDTH-1:0]        addr_o;
     output  wire[DATA_WIDTH-1:0]        wdat_o;
@@ -74,16 +77,16 @@ module cache_ctrl_pipeline #(
     assign b1_us_tag_addr_o = b1_us_addr_i[CLINE_OFFSET+:CLINE_ADDR_WIDTH];
 
     typedef struct packed {
+        logic we;
         logic[ADDR_WIDTH-1:0] addr;
         logic[TAG_SRAM_DATA_WIDTH*NUM_WAYS-1:0] tag;
         logic[DATA_WIDTH*NUM_WAYS-1:0] data;
-        logic web;
         logic[WMASK_WIDTH-1:0] wmask;
         logic[DATA_WIDTH-1:0] wdata;
     } ca_pkt;
 
     ca_pkt b1_ds, b2_ds;
-    wire s1vld, s1rdy, wstall;
+    logic s1vld, s1rdy, wstall;
 
     prim_skidbuf #(
         .WIDTH($bits({
@@ -94,20 +97,18 @@ module cache_ctrl_pipeline #(
         //
         .urdy_o(b1_us_rdy_o),
         .uvld_i(b1_us_vld_i),
-        .udat_i({b1_us_addr_i, b1_us_web_i, b1_us_wmask_i, b1_us_wdat_i}),
+        .udat_i({~b1_us_web_i, b1_us_addr_i, b1_us_wmask_i, b1_us_wdat_i}),
         //
-        .dstall_i(wstall),
         .drdy_i(s1rdy),
         .dvld_o(s1vld),
-        .ddat_o({ b1_ds.addr, b1_ds.web, b1_ds.wmask, b1_ds.wdata })
+        .ddat_o({ b1_ds.we, b1_ds.addr, b1_ds.wmask, b1_ds.wdata })
     );
-    
     assign b1_ds.tag = b1_ds_tag_i;
     assign b1_ds.data = b1_ds_data_i;
 
     ////////////////////////////////////////////////////////////////////////////
     
-    wire[3:0] way_miss;
+    logic[3:0] way_miss;
 
     prim_fifo2 #(
         .WIDTH($bits(b1_ds))
@@ -118,10 +119,12 @@ module cache_ctrl_pipeline #(
         .uvld_i(s1vld),
         .udat_i(b1_ds),
         //
-        .dstall_i(1'b0),
         .drdy_i(drdy_i),
         .dvld_o(dvld_o),
-        .ddat_o(b2_ds)
+        .ddat_o(b2_ds),
+        //
+        .inner_vld_o(),
+        .inner_dat_o()
     );
 
     cache_tag_waysel #(
@@ -140,11 +143,21 @@ module cache_ctrl_pipeline #(
         .way_miss_o(way_miss)
     );
 
+    logic b3_buf_we, b4_buf_we;
+    always @(posedge clk)
+    if(reset) begin
+        b3_buf_we <= 0;
+        b4_buf_we <= 0;
+    end else begin
+        b3_buf_we <= dvld_o & b2_ds.we;
+        b4_buf_we <= b3_buf_we;
+    end
+
+    assign we_o = b2_ds.we & dvld_o;
     assign wmask_o = b2_ds.wmask;
     assign wdat_o = b2_ds.wdata;
-    assign cache_web_o = way_miss | {4{b2_ds.web }};
+    assign cache_web_o = way_miss | {4{ ~b2_ds.we }};
     assign addr_o = b2_ds.addr;
-    assign wstall = !b2_ds.web & (
-        b2_ds.addr[0+:CACHE_ADDR_WIDTH] == b1_us_addr_i[0+:CACHE_ADDR_WIDTH]);
+    assign wstall = dvld_o & b2_ds.we | b3_buf_we | b4_buf_we;
     
 endmodule

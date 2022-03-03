@@ -1,21 +1,21 @@
 [*]
 [*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Fri Feb 25 07:45:07 2022
+[*] Sat Feb 26 09:09:10 2022
 [*]
-[dumpfile] "/data/mpw-two/ip/cache_ctrl/build/tb/read_write/dump.fst"
-[dumpfile_mtime] "Fri Feb 25 07:16:51 2022"
-[dumpfile_size] 12719
-[savefile] "/data/mpw-two/ip/cache_ctrl/build/tb/read_write/tb.gtkw"
-[timestart] 254
-[size] 1128 773
+[dumpfile] "/data/mpw-two/ip/cache_ctrl/build/tb/test2_read_miss/dump.fst"
+[dumpfile_mtime] "Sat Feb 26 03:31:49 2022"
+[dumpfile_size] 5906
+[savefile] "/data/mpw-two/ip/cache_ctrl/dv/tb/test2_read_miss/tb.gtkw"
+[timestart] 137
+[size] 1126 767
 [pos] -1 -1
-*-6.528748 356 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-4.528748 160 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] tb.
 [treeopen] tb.u.
 [treeopen] tb.u.dut.
 [treeopen] tb.u.dut.d_pipeline.
 [sst_width] 252
-[signals_width] 293
+[signals_width] 274
 [sst_expanded] 1
 [sst_vpaned_height] 224
 @800200
@@ -77,17 +77,33 @@ tb.u.dut.d_pipeline.CD.way_hit[3:0]
 tb.u.dut.d_pipeline.CD.way_miss_o[3:0]
 @1401200
 -waysel
-@800201
+@c00200
 -fsm
-@29
+@28
 tb.u.dut.fsm.clk
-@23
+@22
 tb.u.dut.fsm.dpipe_addr_i[31:0]
-@29
+@28
 tb.u.dut.fsm.dpipe_hit_i
 tb.u.dut.fsm.dpipe_urdy_o
 tb.u.dut.fsm.dpipe_uvld_i
-@1000201
+@1401200
 -fsm
+@800201
+-b2
+@29
+tb.u.dut.d_pipeline.B2.uvld_i
+tb.u.dut.d_pipeline.B2.urdy_o
+tb.u.dut.d_pipeline.B2.dvld_o
+tb.u.dut.d_pipeline.B2.drdy_i
+@1000000a9
+tb.u.dut.d_pipeline.B2.buf1[325:0]
+@a3
+tb.u.dut.d_pipeline.B2.buf2[325:0]
+@29
+tb.u.dut.d_pipeline.B2.drdy_r
+tb.u.dut.d_pipeline.B2.dstall_i
+@1000201
+-b2
 [pattern_trace] 1
 [pattern_trace] 0

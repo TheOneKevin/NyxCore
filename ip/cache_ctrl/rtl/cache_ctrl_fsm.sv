@@ -1,28 +1,42 @@
+`ifdef VERILATOR_LINT
+    `default_nettype none
+`endif
+
 module cache_ctrl_fsm #(
     parameter ADDR_WIDTH = 32
 ) (
     input wire clk,
     input wire reset,
 
-    output logic dpipe_urdy_o,
-    input wire dpipe_uvld_i,
-    input wire dpipe_hit_i,
-    input wire[ADDR_WIDTH-1:0] dpipe_addr_i,
-
-    input wire ipipe_urdy_o,
-    input wire ipipe_uvld_i,
-    input wire ipipe_hit_i,
-    input wire[ADDR_WIDTH-1:0] ipipe_addr_i
+    output  logic                   urdy_o,
+    input   wire                    uvld_i,
+    input   wire                    hit_i,
+    input   wire[ADDR_WIDTH-1:0]    addr_i,
+    input   wire                    ack_i
 );
-    // TODO: This is a purely BFM of the FSM
+    localparam NUM_STATES = 3;
+    localparam STATE_IDLE = 0;
+    localparam STATE_WAIT = 1;
+
+    reg[$clog2(NUM_STATES)-1:0] state;
+
+    logic ubeat;
+    assign ubeat = uvld_i & urdy_o;
+    assign urdy_o = state == STATE_IDLE;
+
     always @(posedge clk)
-    if(reset) dpipe_urdy_o <= 1'b0;
-    else begin
-        if(dpipe_uvld_i & !dpipe_hit_i) begin
-            dpipe_urdy_o <= 1'b0;
-            $display($time, " DPIPE cache miss at addr %X", dpipe_addr_i);
-        end else begin
-            dpipe_urdy_o <= 1'b1;
+    if(reset) begin
+        state <= STATE_IDLE;
+    end else case(state)
+        STATE_IDLE:
+        if(ubeat) begin
+            if(!hit_i) begin
+                $display($time, " FSM cache miss at addr %X", addr_i);
+                state <= STATE_WAIT;
+            end
         end
-    end
+        STATE_WAIT: begin
+
+        end
+    endcase
 endmodule
