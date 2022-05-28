@@ -6,30 +6,35 @@ module cache_tag_waysel #(
     parameter ADDR_WIDTH = 32,
     parameter DATA_WIDTH = 32,
     parameter CLINE_SIZE_WORD = 4,
-    parameter CLINE_ADDR_WIDTH = 7,
-    parameter TAG_SRAM_DATA_WIDTH = 32
+    parameter CLINE_ADDR_WIDTH = 7
 ) (
-    input wire[ADDR_WIDTH-1:0] addr_i,
-    input wire[TAG_SRAM_DATA_WIDTH*NUM_WAYS-1:0] tagways_i,
-    input wire[DATA_WIDTH*NUM_WAYS-1:0] dataways_i,
-    output wire[DATA_WIDTH-1:0] data_o,
-    output wire[NUM_WAYS-1:0] way_miss_o,
-    output wire hit_o
+    addr_i, tagways_i, dataways_i, data_o, way_miss_o, hit_o
 );
-    parameter TAG_OFFSET = $clog2(CLINE_SIZE_WORD) + CLINE_ADDR_WIDTH;
-    parameter TAG_WIDTH = ADDR_WIDTH - TAG_OFFSET;
+    localparam tagOffset = $clog2(CLINE_SIZE_WORD) + CLINE_ADDR_WIDTH;
+    // Actual tag width = tagWidth - 1, extra bit is for tag enable
+    localparam tagWidth = ADDR_WIDTH - tagOffset + 1;
+
+    // verilator lint_off UNUSED
+    input   wire[ADDR_WIDTH-1:0]            addr_i;
+    // verilator lint_on UNUSED
+    input   wire[tagWidth*NUM_WAYS-1:0]     tagways_i;
+    input   wire[DATA_WIDTH*NUM_WAYS-1:0]   dataways_i;
+    output  wire[DATA_WIDTH-1:0]            data_o;
+    output  wire[NUM_WAYS-1:0]              way_miss_o;
+    output  wire                            hit_o;
 
     wire[NUM_WAYS-1:0] way_hit;
-    wire[NUM_WAYS-1:0] tag_and_data [DATA_WIDTH-1:0];
 
     genvar i;
     generate
         for(i = 0; i < NUM_WAYS; i++) begin
-            // Compare addr_i tag with tagways_i tag, then and with enable bit
+            // Compare addr_i tag with tagways_i tag, then AND with enable bit
             assign way_hit[i] = !(
-                |(addr_i[TAG_OFFSET+:TAG_WIDTH] ^
-                  tagways_i[TAG_SRAM_DATA_WIDTH*i+:TAG_WIDTH])
-            ) & tagways_i[32*i+31+:1];
+                |(
+                    addr_i[tagOffset+:tagWidth-1]
+                    ^ tagways_i[tagWidth*i+:tagWidth-1]
+                )
+            ) & tagways_i[tagWidth*i + (tagWidth-1)+:1];
         end
     endgenerate
 

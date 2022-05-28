@@ -1,21 +1,13 @@
 {
-    // mshr-h.veriloghdl
-    "verilog.linting.verilator.arguments": "-sv --lint-only +define+VERILATOR_LINT --bbox-unsup lint/waiver.vlt",
-    "verilog.linting.verilator.runAtFileLocation": false,
-
     // imctradingbv.svlangserver
     "systemverilog.disableLinting": false,
     "systemverilog.excludeIndexing": "ip/core/**,**/openlane/**,.vscode/*,.git/**",
     "systemverilog.includeIndexing": [
         "**/*.{sv,svh,v,vh}"
     ],
-    "systemverilog.launchConfiguration": "verilator -sv -F lint/filelist.f",
-
-    // teroshdl
-    "teroshdl.linter.verilog.linter.a": "None",
-    "teroshdl.linter.verilog.linter.verilator.arguments": "-sv --lint-only +define+VERILATOR_LINT -Irtl --bbox-unsup lint/waiver.vlt",
-    "teroshdl.formatter.verilog.type.istyle.spaces": 4,
-    "teroshdl.linter.verilog.linter.verilator.path": "verilator",
+    "systemverilog.launchConfigurationVerilator": "verilator -sv -F lint/filelist.f -Wall",
+    "systemverilog.launchConfiguration": "verilator -sv -F lint/filelist.f -Wall",
+    "systemverilog.compileOnSave": true,
 
     // vscode configs
     "python.pythonPath": "/usr/bin/python3",
@@ -29,6 +21,7 @@
         "**/_build/**": true,
         "**/build/**": true
     },
+    "python.linting.enabled": true,
 
     // lextudio.restructuredtext
     "restructuredtext.sphinxBuildPath": "env/bin/sphinx-build",
@@ -37,6 +30,6 @@
     "restructuredtext.preview.docutil.disabled": true,
     "restructuredtext.linter.disabled": true,
     "restructuredtext.preview.sphinx.disabled": true,
-    "python.linting.enabled": true,
-    "systemverilog.compileOnSave": true,
+    "verilog.linting.linter": "verilator",
+    "verilog.linting.verilator.arguments": "-sv -F lint/filelist.f -Wall"
 }

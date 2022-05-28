@@ -4,7 +4,7 @@
 `endif
 
 module tb();
-    parameter simcycles = 50;
+    parameter simcycles = 62;
     parameter rstcycles = 1;
 
     top #(rstcycles) u();
@@ -16,6 +16,7 @@ module tb();
     end
 
     always @(u.EventDownstreamBeat) m.doevent();
+    always @(u.EventCacheMiss) m.doevent();
 
     ////////////////////////////////////////////////////////////////////////////
     
@@ -45,7 +46,17 @@ module tb();
     end
 
     initial begin
-        @(u.EventDownstreamBeat) m.check(u.resp_data == 32'hFF0000FF);
+        @(u.EventCacheMiss)         m.check(1);
+        @(u.EventDownstreamBeat)    m.check(1);
+        @(u.EventCacheMiss)         m.check(1);
+        @(u.EventDownstreamBeat)    m.check(1);
+        @(u.EventDownstreamBeat)    m.check(u.resp_data == 32'hFF0000FF);
+        @(u.EventCacheMiss)         m.check(1);
+        @(u.EventDownstreamBeat)    m.check(1);
+        @(u.EventCacheMiss)         m.check(1);
+        @(u.EventDownstreamBeat)    m.check(1);
+        @(u.EventCacheMiss)         m.check(1);
+        @(u.EventDownstreamBeat)    m.check(1);
         @(posedge u.clk);
         m.endsim();
     end

@@ -1,6 +1,7 @@
 # .vscode non-configs
 **/.vscode/**/
 **/.vscode/*.log
+.svlangserver/
 
 # others
 .venv/

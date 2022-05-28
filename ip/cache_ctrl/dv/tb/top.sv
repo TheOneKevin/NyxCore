@@ -16,10 +16,12 @@ module top();
     logic[8:0] scan_addr;
     logic[31:0] scan_data;
     logic[3:0] scan_web_tag, scan_web_cache;
+    logic scan_web_meta;
 
     initial scan_enb = 1'b1;
     initial scan_web_tag = 4'b1111;
     initial scan_web_cache = 4'b1111;
+    initial scan_web_meta = 1'b1;
 
     logic urdy, uvld, drdy, dvld;
     logic[31:0] resp_data;
@@ -35,7 +37,7 @@ module top();
         pkt = q.pop_front();
     end
 
-    cache_ctrl dut (
+    cache_ctrl_top dut (
         .clk, .reset,
 
         .p0_uvld_i(uvld),
@@ -53,7 +55,10 @@ module top();
         .scan_addr_i(scan_addr),
         .scan_data_i(scan_data),
         .scan_web_tag_i(scan_web_tag),
-        .scan_web_cache_i(scan_web_cache)
+        .scan_web_cache_i(scan_web_cache),
+        .scan_web_meta_i(scan_web_meta),
+
+        .phy_req_i(1'b0)
     );
 
     ////////////////////////////////////////////////////////////////////////////
@@ -71,6 +76,12 @@ module top();
     if(!reset && drdy && dvld) begin
         -> EventDownstreamBeat;
         $display($time, " TOP read: 0x%X", resp_data);
+    end
+
+    event EventCacheMiss;
+    always @(posedge clk)
+    if(!reset && dut.cache.dpipe_fsm.ubeat && !dut.cache.dpipe_fsm.hit_i) begin
+        -> EventCacheMiss;
     end
 
     task clear_cacheline(input [31:0] addr);
@@ -104,9 +115,15 @@ module top();
         end
         @(posedge clk) begin
             scan_addr <= { 2'b00, addr[8:2] };
-            scan_data <= { 1'b1, 8'b0, addr[31:9] };
+            scan_data <= 32'b0;
+            scan_web_meta <= 1'b0;
             scan_web_cache <= 4'b1111;
+        end
+        @(posedge clk) begin
+            scan_addr <= { 2'b00, addr[8:2] };
+            scan_data <= { 1'b1, 8'b0, addr[31:9] };
             scan_web_tag <= mask;
+            scan_web_meta <= 1'b1;
         end
         repeat (2) @(posedge clk) scan_enb <= 1;
         // Repeat twice to allow sram writes, this gives us better logs :)

@@ -2,186 +2,188 @@
     `default_nettype none
 `endif
 
-module cache_ctrl(
-    input   wire clk,
-    input   wire reset,
+module cache_ctrl #(
+    parameter ADDR_WIDTH        = 32,
+    parameter CLINE_SIZE_WORD   = 4,  // Cache line size in words
+    parameter CLINE_ADDR_WIDTH  = 7,  // Num. bits to address 1 word
+    parameter CLINE_WORD_WIDTH  = 32, // Cache line word size (bits)
+    parameter NUM_WAYS          = 4,  // Number of cache ways
+    parameter WMASK_WIDTH       = 4   // Number of bytes in 1 word
+) (
+    clk,
+    reset,
     //
-    input   wire        p0_uvld_i,
-    output  wire        p0_urdy_o,
-    input   wire[31:0]  p0_addr_i,
-    input   wire        p0_web_i,
-    input   wire[31:0]  p0_wdat_i,
-    input   wire[ 3:0]  p0_wmask_i,
+    p0_uvld_i, p0_urdy_o,
+    p0_addr_i,
+    p0_web_i,
+    p0_wdat_i,
+    p0_wmask_i,
     //
-    output  wire        p0_dvld_o,
-    input   wire        p0_drdy_i,
-    output  wire[31:0]  p0_ddat_o,
+    p0_dvld_o, p0_drdy_i,
+    p0_ddat_o,
     //
-    input   wire        p0_fsm_ack_i,
+    p0_fsm_ack_i,
     //
-    input   wire        scan_clk_i,
-    input   wire        scan_enb_i,
-    input   wire[ 8:0]  scan_addr_i,
-    input   wire[31:0]  scan_data_i,
-    input   wire[ 3:0]  scan_web_tag_i,
-    input   wire[ 3:0]  scan_web_cache_i
+    p0_tag_addr,
+    p0_tag_rdat,
+    p0_cache_addr,
+    p0_cache_web,
+    p0_cache_wdat,
+    p0_cache_wmask,
+    p0_cache_rdat,
+    meta_rdat,
+    meta_wmask,
+    meta_web,
+    meta_wdat,
+    //
+    phy_req_i
 );
-    parameter NUM_WAYS = 4;
-    parameter USE_SCAN_CLK = 0;
+    localparam dataWidth = CLINE_WORD_WIDTH;
+    localparam clineOffset = $clog2(CLINE_SIZE_WORD);
+    localparam caWidth = CLINE_ADDR_WIDTH + clineOffset;
+    localparam taWidth = CLINE_ADDR_WIDTH;
+    localparam tagWidth = ADDR_WIDTH - caWidth + 1;
+    localparam clineWidth = CLINE_SIZE_WORD * CLINE_WORD_WIDTH;
+    localparam metaWidth = 8;
+
+    input   wire clk;
+    input   wire reset;
+    //
+    input   wire                    p0_uvld_i;
+    output  wire                    p0_urdy_o;
+    input   wire[ADDR_WIDTH-1:0]    p0_addr_i;
+    input   wire                    p0_web_i;
+    input   wire[dataWidth-1:0]     p0_wdat_i;
+    input   wire[WMASK_WIDTH-1:0]   p0_wmask_i;
+    //
+    output  reg                     p0_dvld_o;
+    input   wire                    p0_drdy_i;
+    output  reg[dataWidth-1:0]      p0_ddat_o;
+    //
+    input   wire                    p0_fsm_ack_i;
+    //
+    output  wire[taWidth-1:0]       p0_tag_addr;
+    input   wire[tagWidth*NUM_WAYS-1:0] p0_tag_rdat;
+    input   wire[metaWidth*NUM_WAYS-1:0] meta_rdat;
+    output  wire[metaWidth*NUM_WAYS-1:0] meta_wdat;
+    output  wire[NUM_WAYS-1:0]      meta_wmask;
+    output  wire                    meta_web;
+    
+    output  wire[caWidth-1:0]       p0_cache_addr;
+    output  wire[NUM_WAYS-1:0]      p0_cache_web;
+    output  wire[WMASK_WIDTH-1:0]   p0_cache_wmask;
+    output  wire[dataWidth-1:0]     p0_cache_wdat;
+    input   wire[clineWidth-1:0]    p0_cache_rdat;
+    //
+    input   wire phy_req_i;
 
     ////////////////////////////////////////////////////////////////////////////
 
-    wire scan_clk;
-    generate
-        // TODO: Allow generating clkmux instance
-        if(USE_SCAN_CLK) begin
-            assign scan_clk = scan_enb_i ? clk : scan_clk_i;
-        end
-    endgenerate
+    logic[taWidth-1:0]      dpipe_tag_sram_addr;
+    
+    logic[caWidth-1:0]      dpipe_cache_sram_addr;
+    logic[dataWidth-1:0]    dpipe_cache_sram_wdat;
+    logic[NUM_WAYS-1:0]     dpipe_cache_sram_web;
+    logic[WMASK_WIDTH-1:0]  dpipe_cache_sram_wmask;
 
-    typedef struct packed {
-        logic[7:0] addr;
-        logic[32*NUM_WAYS-1:0] rdat;
-        logic[3:0] wmask;
-        logic[31:0] wdat;
-        logic[NUM_WAYS-1:0] web;
-    } tag_sram_rw;
+    logic[caWidth-1:0]      dpipe_cache_read_addr;
+    logic[dataWidth-1:0]    dpipe_ddat;
+    logic[ADDR_WIDTH-1:0]   dpipe_daddr;
+    logic dpipe_dvld, dpipe_drdy, dpipe_hit, dpipe_we, dpipe_we_invalid;
 
-    typedef struct packed {
-        logic[8:0] addr;
-        logic[32*NUM_WAYS-1:0] rdat;
-        logic[3:0] wmask;
-        logic[31:0] wdat;
-        logic[NUM_WAYS-1:0] web;
-    } cache_sram_rw;
-
-    logic[6:0]  dpipe_tag_sram_addr;
-    logic[8:0]  dpipe_cache_sram_addr;
-    logic[31:0] dpipe_cache_sram_wdat;
-    logic[3:0]  dpipe_cache_sram_web;
-    logic[3:0]  dpipe_cache_sram_wmask;
-    logic[31:0] dpipe_ddat;
-    logic[31:0] dpipe_addr;
-    logic dpipe_dvld, dpipe_drdy, dpipe_hit, dpipe_we;
+    logic[dataWidth-1:0] dpipe_fsm_ddat;
+    logic dpipe_fsm_dvld, dpipe_fsm_drdy, dpipe_fsm_scan;
 
     ////////////////////////////////////////////////////////////////////////////
-
-    tag_sram_rw     p0_tag_sram;
-    cache_sram_rw   p0_cache_sram;
-
-    // Scan generation (input MUX)
+    
     // TODO: Change tiedowns when FSM is designed
-    always @(*) begin
-        if(scan_enb_i) begin
-            p0_tag_sram.addr    = { 1'b0, dpipe_tag_sram_addr };
-            p0_tag_sram.wdat    = 32'b0;
-            p0_tag_sram.web     = 4'b1111;
-            p0_tag_sram.wmask   = 4'b1111;
-
-            p0_cache_sram.addr  = dpipe_we ? dpipe_addr[8:0] : dpipe_cache_sram_addr;
-            p0_cache_sram.wdat  = dpipe_cache_sram_wdat;
-            p0_cache_sram.web   = dpipe_cache_sram_web | {4{!dpipe_dvld}};
-            p0_cache_sram.wmask = dpipe_cache_sram_wmask;
-        end else begin
-            p0_tag_sram.addr    = scan_addr_i[7:0];
-            p0_tag_sram.wdat    = scan_data_i;
-            p0_tag_sram.web     = scan_web_tag_i;
-            p0_tag_sram.wmask   = 4'b1111;
-
-            p0_cache_sram.addr  = scan_addr_i;
-            p0_cache_sram.wdat  = scan_data_i;
-            p0_cache_sram.web   = scan_web_cache_i;
-            p0_cache_sram.wmask = 4'b1111;
-        end
-    end
+    
+    assign p0_tag_addr      = dpipe_tag_sram_addr;
+    assign p0_cache_addr    = dpipe_cache_sram_addr;
+    assign p0_cache_wdat    = dpipe_cache_sram_wdat;
+    assign p0_cache_web     = dpipe_cache_sram_web | {4{!dpipe_dvld}};
+    assign p0_cache_wmask   = dpipe_cache_sram_wmask;
+    assign meta_wmask       = ~p0_cache_web;
+    assign meta_web         = ~dpipe_we;
 
     ////////////////////////////////////////////////////////////////////////////
 
-    generate
-        // TODO: Allow generation of generic SRAM models
-        genvar i;
-        for(i = 0; i < NUM_WAYS; i++) begin: gen_tag_sram
-            sky130_sram_1kbyte_1rw1r_32x256_8 #(
-                .VERBOSE(0), .T_HOLD(0)
-            ) tag_sram (
-                // Port 0: RW
-                .clk0   (USE_SCAN_CLK ? scan_clk : clk),
-                .csb0   (1'b0),
-                .web0   (p0_tag_sram.web[i]),
-                .wmask0 (p0_tag_sram.wmask),
-                .addr0  (p0_tag_sram.addr),
-                .din0   (p0_tag_sram.wdat),
-                .dout0  (p0_tag_sram.rdat[32*i+:32]),
-                // Port 1: R
-                .clk1(clk),
-                .csb1(1'b0),
-                .addr1(),
-                .dout1()
-            );
-        end
-        for(i = 0; i < NUM_WAYS; i++) begin: gen_cache_sram
-            sky130_sram_2kbyte_1rw1r_32x512_8 #(
-                .VERBOSE(0), .T_HOLD(0)
-            ) cache_sram (
-                // Port 0: RW
-                .clk0   (USE_SCAN_CLK ? scan_clk : clk),
-                .csb0   (1'b0),
-                .web0   (p0_cache_sram.web[i]),
-                .wmask0 (p0_cache_sram.wmask),
-                .addr0  (p0_cache_sram.addr),
-                .din0   (p0_cache_sram.wdat),
-                .dout0  (p0_cache_sram.rdat[32*i+:32]),
-                // Port 1: R
-                .clk1(clk),
-                .csb1(1'b0),
-                .addr1(),
-                .dout1()
-            );
-        end
-    endgenerate
-
-    ////////////////////////////////////////////////////////////////////////////
-
-    assign p0_dvld_o = dpipe_hit & dpipe_dvld & !dpipe_we;
-    assign p0_ddat_o = dpipe_ddat;
     cache_ctrl_pipeline #(
-        
+        .ADDR_WIDTH(ADDR_WIDTH),
+        .CLINE_SIZE_WORD(CLINE_SIZE_WORD),
+        .CLINE_ADDR_WIDTH(CLINE_ADDR_WIDTH),
+        .CLINE_WORD_WIDTH(CLINE_WORD_WIDTH),
+        .NUM_WAYS(NUM_WAYS),
+        .WMASK_WIDTH(WMASK_WIDTH)
     ) d_pipeline (
         .clk, .reset,
         //
-        .b1_us_vld_i    (p0_uvld_i),
-        .b1_us_rdy_o    (p0_urdy_o),
-        .b1_us_addr_i   (p0_addr_i),
-        .b1_us_web_i    (p0_web_i),
-        .b1_us_wmask_i  (p0_wmask_i),
-        .b1_us_wdat_i   (p0_wdat_i),
-        .b1_us_cache_addr_o(dpipe_cache_sram_addr),
-        .b1_us_tag_addr_o(dpipe_tag_sram_addr),
+        .b1_us_vld_i        (p0_uvld_i),
+        .b1_us_rdy_o        (p0_urdy_o),
+        .b1_us_addr_i       (p0_addr_i),
+        .b1_us_web_i        (p0_web_i),
+        .b1_us_wmask_i      (p0_wmask_i),
+        .b1_us_wdat_i       (p0_wdat_i),
+        .b1_us_cache_addr_o (dpipe_cache_read_addr),
+        .b1_us_tag_addr_o   (dpipe_tag_sram_addr),
         //
-        .b1_ds_data_i   (p0_cache_sram.rdat),
-        .b1_ds_tag_i    (p0_tag_sram.rdat),
+        .b1_ds_data_i       (p0_cache_rdat),
+        .b1_ds_tag_i        (p0_tag_rdat),
+        .b1_ds_meta_i       (meta_rdat),
         //
-        .dvld_o         (dpipe_dvld),
-        .hit_o          (dpipe_hit),
-        .drdy_i         (dpipe_drdy & p0_drdy_i),
-        .ddat_o         (dpipe_ddat),
-        .addr_o         (dpipe_addr),
-        .we_o           (dpipe_we),
-        .cache_web_o    (dpipe_cache_sram_web),
-        .wmask_o        (dpipe_cache_sram_wmask),
-        .wdat_o         (dpipe_cache_sram_wdat)
+        .dvld_o             (dpipe_dvld),
+        .hit_o              (dpipe_hit),
+        .drdy_i             (dpipe_drdy & p0_drdy_i),
+        .ddat_o             (dpipe_ddat),
+        .addr_o             (dpipe_daddr),
+        .we_o               (dpipe_we_invalid),
+        .cache_web_o        (dpipe_cache_sram_web),
+        .wmask_o            (dpipe_cache_sram_wmask),
+        .wdat_o             (dpipe_cache_sram_wdat),
+        .meta_o             (meta_wdat),
+        //
+        .phy_req_i
     );
 
-    cache_ctrl_fsm #(
+    assign dpipe_we = dpipe_we_invalid & dpipe_dvld;
 
+    always @(*) begin: cmb_dpipe_we_mux
+        if(dpipe_we) dpipe_cache_sram_addr = dpipe_daddr[8:0];
+        else         dpipe_cache_sram_addr = dpipe_cache_read_addr;
+    end
+
+    always @(*) begin: cmb_dpipe_fsm_mux
+        if(dpipe_fsm_scan) begin
+            p0_dvld_o       = dpipe_fsm_dvld;
+            p0_ddat_o       = dpipe_fsm_ddat;
+            dpipe_fsm_drdy  = p0_drdy_i;
+        end else begin
+            p0_dvld_o       = dpipe_hit & dpipe_dvld & !dpipe_we;
+            p0_ddat_o       = dpipe_ddat;
+            dpipe_fsm_drdy  = 1'b1;
+        end
+    end
+
+    cache_ctrl_fsm #(
+        .ADDR_WIDTH(ADDR_WIDTH),
+        .DATA_WIDTH(dataWidth)
     ) dpipe_fsm (
         .clk, .reset,
         // 
         .urdy_o   (dpipe_drdy),
         .uvld_i   (dpipe_dvld),
         .hit_i    (dpipe_hit),
-        .addr_i   (dpipe_addr),
-        .ack_i    (p0_fsm_ack_i)
+        .addr_i   (dpipe_daddr),
+        .ack_i    (p0_fsm_ack_i),
+        //
+        .dscan_o  (dpipe_fsm_scan),
+        .dvld_o   (dpipe_fsm_dvld),
+        .drdy_i   (dpipe_fsm_drdy),
+        .ddat_o   (dpipe_fsm_ddat)
     );
+
+    ////////////////////////////////////////////////////////////////////////////
+
+    
     
 endmodule

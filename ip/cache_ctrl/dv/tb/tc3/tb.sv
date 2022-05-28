@@ -8,7 +8,7 @@ module tb();
     parameter rstcycles = 1;
 
     top #(rstcycles) u();
-    tb_monitor #(.SIMCYCLES(simcycles), .TEST_ID(1)) m(u.clk);
+    tb_monitor #(.SIMCYCLES(simcycles), .TEST_ID(3)) m(u.clk);
 
     initial begin
         $dumpfile({ "dump.fst" });
@@ -45,6 +45,11 @@ module tb();
     end
 
     initial begin
-        // m.endsim();
+        @(u.EventDownstreamBeat) m.check(u.resp_data == 32'hDEADBEEF);
+        @(u.EventDownstreamBeat) m.check(u.resp_data == 32'hCAFEBABE);
+        @(u.EventDownstreamBeat) m.check(u.resp_data == 32'hA);
+        @(u.EventDownstreamBeat) m.check(u.resp_data == 32'hB);
+        @(posedge u.clk);
+        m.endsim();
     end
 endmodule
