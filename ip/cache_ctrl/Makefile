@@ -16,7 +16,7 @@ EXTRA_SIM_FILES = \
 
 .PHONY: lint
 lint:
-	@verilator -sv -F $(IPS_ROOT)/../lint/filelist.f $(FILELIST) && echo "Lint OK"
+	@verilator -sv -Wno-fatal -F $(IPS_ROOT)/../lint/filelist.f $(FILELIST) && echo "Lint OK"
 
 .PHONY: sv2v
 sv2v: lint

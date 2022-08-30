@@ -3,15 +3,12 @@ module tb_queue #(
     parameter DATA_COUNT = 1,
     parameter FILL_MODE = "FIRST_POSEDGE" // INITIAL, FIRST_POSEDGE
 ) (
-    input wire clk,
-    input wire reset,
-
-    input wire[DATA_WIDTH*DATA_COUNT-1:0] init_i,
-
-    input wire drdy_i,
+    input  logic clk,
+    input  logic reset,
+    input  logic[DATA_WIDTH*DATA_COUNT-1:0] init_i,
+    input  logic drdy_i,
     output logic dvld_o,
     output logic[DATA_WIDTH-1:0] ddat_o,
-
     output logic finish_o
 );
     logic[DATA_WIDTH-1:0] buffer[DATA_COUNT-1:0];

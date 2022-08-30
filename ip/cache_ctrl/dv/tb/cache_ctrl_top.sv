@@ -1,4 +1,4 @@
-// Temporary file
+// TODO: Temporary file
 
 module cache_ctrl_top (
     input wire clk,
@@ -15,8 +15,6 @@ module cache_ctrl_top (
     input   wire        p0_drdy_i,
     output  wire[31:0]  p0_ddat_o,
     //
-    input   wire        p0_fsm_ack_i,
-    //
     input   wire        scan_clk_i,
     input   wire        scan_enb_i,
     input   wire[ 8:0]  scan_addr_i,
@@ -25,10 +23,13 @@ module cache_ctrl_top (
     input   wire[ 3:0]  scan_web_cache_i,
     input   wire        scan_web_meta_i,
     //
-    input   wire        phy_req_i
+    output  wire        phy_vld_o,
+    input   wire        phy_rdy_i,
+    output  wire[34:0]  phy_cmd_o,
+    input   wire        phy_ack_i
 );
-    localparam NUM_WAYS = 4;
-    localparam USE_SCAN_CLK = 0;
+    parameter NUM_WAYS = 4;
+    parameter USE_SCAN_CLK = 1;
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -40,9 +41,6 @@ module cache_ctrl_top (
     logic                   meta_web;
     logic[31:0]             meta_rdat;
     logic[31:0]             meta_wdat;
-
-    assign p0_tag_web = 4'b1111;
-    assign p0_tag_wdat = 0;
 
     logic[8:0]              p0_cache_addr;
     logic[32*NUM_WAYS-1:0]  p0_cache_rdat;
@@ -59,7 +57,8 @@ module cache_ctrl_top (
     ////////////////////////////////////////////////////////////////////////////
 
     logic scan_clk;
-    assign scan_clk = clk;
+    // TODO: Use clockmux primitives instead!
+    assign scan_clk = scan_enb_i ? scan_clk_i : clk;
 
     typedef struct packed {
         logic[7:0] addr;

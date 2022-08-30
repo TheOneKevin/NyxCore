@@ -8,7 +8,7 @@ module cache_tag_waysel #(
     parameter CLINE_SIZE_WORD = 4,
     parameter CLINE_ADDR_WIDTH = 7
 ) (
-    addr_i, tagways_i, dataways_i, data_o, way_miss_o, hit_o
+    addr_i, tagways_i, dataways_i, data_o, way_hit_o, hit_o
 );
     localparam tagOffset = $clog2(CLINE_SIZE_WORD) + CLINE_ADDR_WIDTH;
     // Actual tag width = tagWidth - 1, extra bit is for tag enable
@@ -20,7 +20,7 @@ module cache_tag_waysel #(
     input   wire[tagWidth*NUM_WAYS-1:0]     tagways_i;
     input   wire[DATA_WIDTH*NUM_WAYS-1:0]   dataways_i;
     output  wire[DATA_WIDTH-1:0]            data_o;
-    output  wire[NUM_WAYS-1:0]              way_miss_o;
+    output  wire[NUM_WAYS-1:0]              way_hit_o;
     output  wire                            hit_o;
 
     wire[NUM_WAYS-1:0] way_hit;
@@ -49,5 +49,5 @@ module cache_tag_waysel #(
     );
     
     assign hit_o = | way_hit;
-    assign way_miss_o = ~way_hit;
+    assign way_hit_o = way_hit;
 endmodule

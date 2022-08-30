@@ -18,6 +18,9 @@ module tb();
     always @(u.EventDownstreamBeat) m.doevent();
     always @(u.EventCacheMiss) m.doevent();
 
+    // always @(u.EventDownstreamBeat) $display("EventDownstreamBeat");
+    // always @(u.EventCacheMiss) $display("EventCacheMiss");
+
     ////////////////////////////////////////////////////////////////////////////
     
     integer i;
@@ -51,6 +54,8 @@ module tb();
         @(u.EventCacheMiss)         m.check(1);
         @(u.EventDownstreamBeat)    m.check(1);
         @(u.EventDownstreamBeat)    m.check(u.resp_data == 32'hFF0000FF);
+        @(u.EventCacheMiss)         m.check(1);
+        @(u.EventDownstreamBeat)    m.check(1);
         @(u.EventCacheMiss)         m.check(1);
         @(u.EventDownstreamBeat)    m.check(1);
         @(u.EventCacheMiss)         m.check(1);

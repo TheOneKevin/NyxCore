@@ -51,6 +51,7 @@ module top();
         .p0_drdy_i(drdy),
         .p0_ddat_o(resp_data),
 
+        .scan_clk_i(clk),
         .scan_enb_i(scan_enb),
         .scan_addr_i(scan_addr),
         .scan_data_i(scan_data),
@@ -58,7 +59,10 @@ module top();
         .scan_web_cache_i(scan_web_cache),
         .scan_web_meta_i(scan_web_meta),
 
-        .phy_req_i(1'b0)
+        .phy_vld_o(),
+        .phy_rdy_i(1'b1),
+        .phy_cmd_o(),
+        .phy_ack_i(1'b1)
     );
 
     ////////////////////////////////////////////////////////////////////////////

@@ -20,7 +20,7 @@ module cache_ctrl_pipeline #(
     b1_ds_data_i, b1_ds_tag_i, b1_ds_meta_i,
     //
     dvld_o, drdy_i, hit_o, ddat_o, addr_o,
-    cache_web_o, wmask_o, wdat_o, we_o, meta_o,
+    cache_web_o, wmask_o, wdat_o, we_o, tag_o, meta_o,
     //
     phy_req_i
 );
@@ -60,6 +60,7 @@ module cache_ctrl_pipeline #(
     output  wire[dataWidth-1:0]         wdat_o;
     output  wire[NUM_WAYS-1:0]          cache_web_o;
     output  wire[WMASK_WIDTH-1:0]       wmask_o;
+    output  wire[tagWidth-1:0]          tag_o;
     output  reg[metaWidth*NUM_WAYS-1:0] meta_o;
 
     // PHY request override
@@ -125,7 +126,8 @@ module cache_ctrl_pipeline #(
 
     ////////////////////////////////////////////////////////////////////////////
     
-    logic[3:0] way_miss;
+    logic[NUM_WAYS-1:0] way_miss, way_hit;
+    assign way_miss = ~way_hit;
 
     prim_fifo2 #(
         .WIDTH($bits(b1_ds))
@@ -156,19 +158,8 @@ module cache_ctrl_pipeline #(
         .dataways_i(b2_ds.data),
         .data_o(ddat_o),
         .hit_o(hit_o),
-        .way_miss_o(way_miss)
+        .way_hit_o(way_hit)
     );
-
-    // Generate new metadata
-    genvar i;
-    generate
-        for(i = 0; i < NUM_WAYS; i++) begin: gen_meta
-            always@(*)
-            meta_o[metaWidth*i+:metaWidth] =
-                b2_ds.meta[metaWidth*i+:metaWidth]
-            |   { 7'b0, ~way_miss[i] & b2dvld & b2_ds.we };
-        end
-    endgenerate
 
     prim_stall b2_dstall (
         .stall_i(1'b0),
@@ -183,9 +174,31 @@ module cache_ctrl_pipeline #(
     assign wdat_o = b2_ds.wdata;
     assign cache_web_o = way_miss | {4{ ~b2_ds.we }};
     assign addr_o = b2_ds.addr;
+
+    // Generate new metadata
+    generate
+        genvar i;
+        for(i = 0; i < NUM_WAYS; i++) begin: gen_meta
+            always @(*)
+            meta_o[metaWidth*i+:metaWidth] =
+                b2_ds.meta[metaWidth*i+:metaWidth]
+            |   { 7'b0, way_hit[i] & b2dvld & b2_ds.we };
+        end
+    endgenerate
+
+    // Output hit tag
+    prim_muxonehot #(
+        .DATA_COUNT(NUM_WAYS),
+        .DATA_WIDTH(tagWidth),
+        .OPERATION("OR")
+    ) tagmux (
+        .mask_i(way_hit),
+        .data_i(b2_ds.tag),
+        .data_o(tag_o)
+    );
     
     // Stall when:
-    // (b1_us is NOT write) AND (there is in-flight write(s) downstream)
+    // (b1_us is NOT write) AND (there are in-flight write(s) downstream)
     assign wstall =
         b1_us_web_i & (
             b1dvld & b1_ds.we |
