@@ -59,6 +59,7 @@ module top();
         .scan_web_cache_i(scan_web_cache),
         .scan_web_meta_i(scan_web_meta),
 
+        // TODO: Connect to real PHY
         .phy_vld_o(),
         .phy_rdy_i(1'b1),
         .phy_cmd_o(),

@@ -190,7 +190,7 @@ module cache_ctrl #(
         .uvld_i   (dpipe_dvld),
         .hit_i    (dpipe_hit),
         .we_i     (dpipe_we),
-        .flush_i  (1'b0),
+        .flush_i  (dpipe_cache_tag_wdat[tagWidth-1]),
         .addr_i   (dpipe_daddr),
         // FSM/P0 DS IF
         .dvld_o   (dpipe_fsm_dvld),

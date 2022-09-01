@@ -3,8 +3,7 @@ IPS_ROOT ?= $(shell realpath ../)
 include filelist.mk
 include $(IPS_ROOT)/prim/filelist.mk
 
-EXTRA_SIM_ELAB_FILES = \
-	$(IPS_ROOT)/cache_ctrl/dv/tb/cache_ctrl_top.sv
+EXTRA_SIM_ELAB_FILES = 
 
 EXTRA_SIM_FILES = \
 	$(IPS_ROOT)/cache_ctrl/dv/tb/lib.sv \

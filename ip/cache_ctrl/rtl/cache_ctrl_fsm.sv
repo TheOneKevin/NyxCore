@@ -130,7 +130,6 @@ module cache_ctrl_fsm #(
         ddat_o <= 0;
     end else case(nextstate)
         STATE_WB: ddat_o <= 0;
-        default: ddat_o <= 'x;
     endcase
 
     // Drives: qvld_o

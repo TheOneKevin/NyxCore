@@ -175,18 +175,19 @@ module cache_ctrl_pipeline #(
     assign cache_web_o = way_miss | {4{ ~b2_ds.we }};
     assign addr_o = b2_ds.addr;
 
-    // Generate new metadata
+    // TODO: Revise metadata generation and LRU algorithm
     generate
         genvar i;
         for(i = 0; i < NUM_WAYS; i++) begin: gen_meta
             always @(*)
             meta_o[metaWidth*i+:metaWidth] =
                 b2_ds.meta[metaWidth*i+:metaWidth]
-            |   { 7'b0, way_hit[i] & b2dvld & b2_ds.we };
+            |   { 7'b0, way_hit[i] };
         end
     endgenerate
 
     // Output hit tag
+    logic[tagWidth-1:0] current_tag;
     prim_muxonehot #(
         .DATA_COUNT(NUM_WAYS),
         .DATA_WIDTH(tagWidth),
@@ -194,8 +195,9 @@ module cache_ctrl_pipeline #(
     ) tagmux (
         .mask_i(way_hit),
         .data_i(b2_ds.tag),
-        .data_o(tag_o)
+        .data_o(current_tag)
     );
+    assign tag_o = { we_o, current_tag[tagWidth-2:0] };
     
     // Stall when:
     // (b1_us is NOT write) AND (there are in-flight write(s) downstream)
