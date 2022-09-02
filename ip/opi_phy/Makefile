@@ -6,12 +6,7 @@ include $(IPS_ROOT)/prim/filelist.mk
 EXTRA_SIM_ELAB_FILES = 
 
 EXTRA_SIM_FILES = \
-	$(IPS_ROOT)/cache_ctrl/dv/tb/lib.sv \
-	$(IPS_ROOT)/cache_ctrl/dv/tb/top.sv \
-	$(wildcard $(IPS_ROOT)/simlib/rtl/*.sv) \
-	$(IPS_ROOT)/sky130_sram_macros/sky130_sram_1kbyte_1rw_32x256_8/sky130_sram_1kbyte_1rw_32x256_8.v \
-	$(IPS_ROOT)/sky130_sram_macros/sky130_sram_1kbyte_1rw1r_32x256_8/sky130_sram_1kbyte_1rw1r_32x256_8.v \
-	$(IPS_ROOT)/sky130_sram_macros/sky130_sram_2kbyte_1rw1r_32x512_8/sky130_sram_2kbyte_1rw1r_32x512_8.v
+	$(wildcard $(IPS_ROOT)/simlib/rtl/*.sv)
 
 .PHONY: lint
 lint:
